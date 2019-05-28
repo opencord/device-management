@@ -20,6 +20,5 @@ import (
 
 func main() {
 	fmt.Println("Starting Device-management Container")
-        for {
-        }
+        select { }
 }
