@@ -16,9 +16,17 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"os/signal"
 )
 
 func main() {
 	fmt.Println("Starting Device-management Container")
-        select { }
+	quit := make(chan os.Signal)
+	signal.Notify(quit, os.Interrupt)
+
+	select {
+	case sig := <-quit:
+		fmt.Println("Shutting down:", sig)
+	}
 }
