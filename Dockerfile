@@ -19,6 +19,10 @@ FROM golang:1.12-alpine3.9 AS build-env
 RUN mkdir /app
 ADD . /app/
 WORKDIR /app
+RUN apk add git
+RUN apk add gcc
+RUN apk add build-base 
+RUN go get github.com/Shopify/sarama
 RUN CGO_ENABLED=0 GOOS=linux go build -o main .
 
 FROM alpine:3.9.4
