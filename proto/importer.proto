@@ -1,0 +1,21 @@
+syntax = "proto3";
+  
+
+package importer;
+
+import "google/protobuf/empty.proto";
+//import "google/api/annotations.proto";
+
+
+message DeviceInfo {
+    string ip_address = 1;
+    uint32 frequency = 2;
+}
+
+
+service device_management {
+    rpc SendDeviceInfo(DeviceInfo)
+        returns (google.protobuf.Empty) {}
+}
+
+
