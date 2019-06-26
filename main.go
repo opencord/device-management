@@ -24,6 +24,7 @@ import (
 	"github.com/Shopify/sarama"
 	"google.golang.org/grpc"
 	"golang.org/x/net/context"
+	"crypto/tls"
 	empty "github.com/golang/protobuf/ptypes/empty"
         importer "./proto"
 )
@@ -35,8 +36,10 @@ var (
 
 var DataProducer sarama.AsyncProducer
 
+var default_events = [...]string{"ResourceAdded","ResourceRemoved","Alert"}
+
 type device struct  {
-	subscription []string
+	subscriptions map[string]uint
 	freq uint32
 }
 
@@ -49,6 +52,7 @@ type Server struct {
 
 func (s *Server) SendDeviceInfo(c context.Context,  info *importer.DeviceInfo) (*empty.Empty, error) {
 	d := device {
+		subscriptions: make(map[string]uint),
 		freq:	info.Frequency,
 	}
 	s.devicemap[info.IpAddress] = &d
@@ -56,15 +60,24 @@ func (s *Server) SendDeviceInfo(c context.Context,  info *importer.DeviceInfo) (
 	return &empty.Empty{}, nil
 }
 func(s *Server) subscribeevents() {
+	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	for {
 		select {
-			case info:= <-s.devicechan:
-				ip_address:= info.IpAddress
+		case info:= <-s.devicechan:
+			ip_address:= info.IpAddress
 			fmt.Println("Configuring  %s ...", ip_address)
 			// call subscription function with info.IpAddress
+			for _, event := range default_events {
+				rtn, id := add_subscription(ip_address, event)
+				if rtn {
+					s.devicemap[ip_address].subscriptions[event] = id
+					fmt.Println("subscription added", event, id)
+				}
+			}
 		}
 	}
 }
+
 func NewGrpcServer(grpcport string) (l net.Listener, g *grpc.Server, e error) {
         fmt.Println("Listening %s ...", grpcport)
         g = grpc.NewServer()
