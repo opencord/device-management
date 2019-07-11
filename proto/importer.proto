@@ -12,10 +12,23 @@ message DeviceInfo {
     uint32 frequency = 2;
 }
 
+message EventList {
+       string event_ip_address = 1;
+        repeated string events = 2;
+}
+
 
 service device_management {
-    rpc SendDeviceInfo(DeviceInfo)
-        returns (google.protobuf.Empty) {}
+    rpc SendDeviceInfo(DeviceInfo) returns (google.protobuf.Empty) {}
+
+    rpc SetFrequency(DeviceInfo) returns (google.protobuf.Empty) {}
+
+    rpc GetEventList(DeviceInfo) returns (EventList) {}
+
+    rpc SubsrcribeGivenEvents(EventList)  returns (google.protobuf.Empty) {}
+
+    rpc UnSubsrcribeGivenEvents(EventList) returns (google.protobuf.Empty) {}
 }
+
 
 
