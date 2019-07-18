@@ -25,8 +25,7 @@ import (
 	"os"
 )
 
-const REDFISH_PATH = "/redfish/v1/EventService/Subscriptions/"
-const CONTENT_TYPE = "application/json"
+const RF_SUBSCRIPTION = "/EventService/Subscriptions"
 
 func add_subscription(ip string, event string) (rtn bool, id uint) {
 	rtn = false
@@ -38,7 +37,7 @@ func add_subscription(ip string, event string) (rtn bool, id uint) {
 	subscrpt_info["Destination"] = "https://" + destip
 	subscrpt_info["EventTypes"] = []string{event}
 	sRequestJson, err := json.Marshal(subscrpt_info)
-	uri := ip + REDFISH_PATH
+	uri := ip + REDFISH_ROOT + RF_SUBSCRIPTION
 	client := http.Client{Timeout: 10 * time.Second}
 	resp, err := client.Post(uri, CONTENT_TYPE, bytes.NewBuffer(sRequestJson))
 	if err != nil {
@@ -67,7 +66,7 @@ func add_subscription(ip string, event string) (rtn bool, id uint) {
 }
 
 func remove_subscription(ip string, id uint) bool {
-	uri := ip + REDFISH_PATH + strconv.Itoa(int(id))
+	uri := ip + REDFISH_ROOT + RF_SUBSCRIPTION + strconv.Itoa(int(id))
 	req, _ := http.NewRequest("DELETE", uri, nil)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
