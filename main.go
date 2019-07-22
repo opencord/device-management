@@ -27,6 +27,7 @@ import (
 	"crypto/tls"
 	empty "github.com/golang/protobuf/ptypes/empty"
         importer "./proto"
+        log "github.com/Sirupsen/logrus"
 	"time"
 )
 
@@ -41,8 +42,10 @@ var (
 
 var DataProducer sarama.AsyncProducer
 
-var default_events = [...]string{"ResourceAdded","ResourceRemoved","Alert"}
 
+var    vendor_default_events = map[string][]string{
+        "edgecore": {"ResourceAdded","ResourceRemoved","Alert"},
+    }
 var redfish_services = [...]string{"/Chassis", "/Systems","/EthernetSwitches"}
 
 type scheduler struct  {
@@ -54,6 +57,7 @@ type device struct  {
 	subscriptions map[string]uint
 	datacollector scheduler
 	freqchan   chan uint32
+        vendor string
 }
 
 type Server struct {
@@ -63,11 +67,10 @@ type Server struct {
 	devicechan   chan *importer.DeviceInfo
 }
 
-func (s *Server) GetEventList(c context.Context, info *importer.DeviceInfo) (*importer.EventList, error) {
+func (s *Server) GetEventList(c context.Context, info *importer.DeviceInfo) (*importer.SupportedEventList, error) {
 	fmt.Println("Received GetEventList\n")
-	eventstobesubscribed:= new(importer.EventList)
-	eventstobesubscribed.EventIpAddress = info.IpAddress
-	eventstobesubscribed.Events = append(eventstobesubscribed.Events,"ResourceAdded","ResourceRemoved","Alert")
+	eventstobesubscribed:= new(importer.SupportedEventList)
+	eventstobesubscribed.Events = vendor_default_events[info.Vendor]
 	return eventstobesubscribed, nil
 }
 
@@ -82,11 +85,17 @@ func (s *Server) SubsrcribeGivenEvents(c context.Context,  subeventlist *importe
 	//Call API to subscribe events
 	ip_address := subeventlist.EventIpAddress
 	for _, event := range subeventlist.Events {
-		rtn, id := add_subscription(ip_address, event)
-		if rtn {
-			s.devicemap[ip_address].subscriptions[event] = id
-			fmt.Println("subscription added", event, id)
-		}
+                if _, ok := s.devicemap[ip_address].subscriptions[event]; !ok {
+                 rtn, id := add_subscription(ip_address, event)
+                        if rtn {
+                                 s.devicemap[ip_address].subscriptions[event] = id
+                                fmt.Println("subscription added", event, id)
+                        }
+                } else {
+                                log.WithFields(log.Fields{
+                                  "Event": event,
+                                }).Info("Already Subscribed")
+                }
 	}
 	return &empty.Empty{}, nil
 }
@@ -96,11 +105,17 @@ func (s *Server) UnSubsrcribeGivenEvents(c context.Context,  unsubeventlist *imp
        ip_address := unsubeventlist.EventIpAddress
        //Call API to unsubscribe events
         for _, event := range unsubeventlist.Events {
-                rtn := remove_subscription(ip_address, s.devicemap[ip_address].subscriptions[event] )
-                if rtn {
-                        delete(s.devicemap[ip_address].subscriptions, event)
-                        fmt.Println("subscription removed", event)
-                }
+                if _, ok := s.devicemap[ip_address].subscriptions[event]; ok {
+                 rtn := remove_subscription(ip_address, s.devicemap[ip_address].subscriptions[event] )
+                        if rtn {
+                                delete(s.devicemap[ip_address].subscriptions, event)
+                                fmt.Println("subscription removed", event)
+                        }
+                } else {
+                                log.WithFields(log.Fields{
+                                  "Event": event,
+                                }).Info("was not Subscribed")
+                        }
         }
 
        return &empty.Empty{}, nil
@@ -112,7 +127,7 @@ func (s *Server) collect_data(ip_address string) {
 	donechan := s.devicemap[ip_address].datacollector.quit
 	for {
 		select {
-		case freq := <- freqchan:
+		case freq := <-freqchan:
 			ticker.Stop()
 			ticker = *time.NewTicker(time.Duration(freq) * time.Second)
 		case <-ticker.C:
@@ -142,12 +157,15 @@ func (s *Server) SendDeviceInfo(c context.Context,  info *importer.DeviceInfo) (
 			quit: make(chan bool),
 		},
 		freqchan:        make(chan uint32),
+                vendor: info.Vendor,
 	}
+        //default_events := [...]string{}
 	s.devicemap[info.IpAddress] = &d
 	ip_address:= info.IpAddress
 	fmt.Println("Configuring  %s ...", ip_address)
 	// call subscription function with info.IpAddress
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+	default_events := vendor_default_events[info.Vendor]
 	for _, event := range default_events {
 		rtn, id := add_subscription(ip_address, event)
 		if rtn {
@@ -231,8 +249,14 @@ func (s *Server) runServer() {
 }
 
 func init() {
+        Formatter := new(log.TextFormatter)
+        Formatter.TimestampFormat = "02-01-2006 15:04:05"
+        Formatter.FullTimestamp = true
+        log.SetFormatter(Formatter)
 	fmt.Println("Connecting to broker: ")
 	fmt.Println("Listening to  http server")
+        log.Info("log Connecting to broker:")
+        log.Info("log Listening to  http server ")
 }
 
 

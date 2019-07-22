@@ -8,22 +8,26 @@ import "google/protobuf/empty.proto";
 
 
 message DeviceInfo {
-    string ip_address = 1;
-    uint32 frequency = 2;
+	string ip_address = 1;
+	uint32 frequency = 2;
+        string vendor = 3;
 }
 
 message EventList {
-       string event_ip_address = 1;
+	string event_ip_address = 1;
         repeated string events = 2;
 }
 
+message SupportedEventList {
+        repeated string events = 1;
+}
 
 service device_management {
     rpc SendDeviceInfo(DeviceInfo) returns (google.protobuf.Empty) {}
 
     rpc SetFrequency(DeviceInfo) returns (google.protobuf.Empty) {}
 
-    rpc GetEventList(DeviceInfo) returns (EventList) {}
+    rpc GetEventList(DeviceInfo) returns (SupportedEventList) {}
 
     rpc SubsrcribeGivenEvents(EventList)  returns (google.protobuf.Empty) {}
 

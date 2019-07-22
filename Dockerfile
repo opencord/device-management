@@ -37,6 +37,7 @@ RUN go get -u google.golang.org/grpc \
     && go get -v github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway \
     && go get -v github.com/golang/protobuf/protoc-gen-go \
     && go get github.com/Shopify/sarama \
+    && go get github.com/Sirupsen/logrus\
     &&  protoc -I proto -I${GOPATH}/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis --go_out=plugins=grpc:proto/  proto/*.proto
 RUN CGO_ENABLED=0 GOOS=linux go build -o main .
 
