@@ -31,7 +31,7 @@ func add_subscription(ip string, event string) (rtn bool, id uint) {
 	rtn = false
 	id = 0
 
-	destip := os.Getenv("DEVICE_MANAGEMENT_DESTIP") + ":" + os.Getenv("DEVICE_MANAGEMENT_DESTPORT")
+	destip := os.Getenv("EVENT_NOTIFICATION_DESTIP") + ":" + os.Getenv("DEVICE_MANAGEMENT_DESTPORT")
 	subscrpt_info := map[string]interface{}{"Context":"TBD","Protocol":"Redfish"}
 	subscrpt_info["Name"] = event + " event subscription"
 	subscrpt_info["Destination"] = "https://" + destip

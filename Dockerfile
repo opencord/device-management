@@ -43,6 +43,8 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o main .
 
 FROM alpine:3.9.4
 WORKDIR /app/
+COPY https-server.crt .
+COPY https-server.key .
 COPY --from=build-env /app/main .
 ENTRYPOINT ["./main"]
 

@@ -11,6 +11,7 @@ message DeviceInfo {
 	string ip_address = 1;
 	uint32 frequency = 2;
         string vendor = 3;
+	string protocol = 4;
 }
 
 message EventList {
