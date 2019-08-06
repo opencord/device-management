@@ -20,16 +20,13 @@ import (
 	"net/http"
 	"bytes"
 	"regexp"
-	"strconv"
-	"time"
 	"os"
 )
 
 const RF_SUBSCRIPTION = "/EventService/Subscriptions"
 
-func add_subscription(ip string, event string) (rtn bool, id uint) {
+func (s *Server) add_subscription(ip string, event string, f *os.File) (rtn bool) {
 	rtn = false
-	id = 0
 
 	destip := os.Getenv("EVENT_NOTIFICATION_DESTIP") + ":" + os.Getenv("DEVICE_MANAGEMENT_DESTPORT")
 	subscrpt_info := map[string]interface{}{"Context":"TBD","Protocol":"Redfish"}
@@ -37,8 +34,8 @@ func add_subscription(ip string, event string) (rtn bool, id uint) {
 	subscrpt_info["Destination"] = "https://" + destip
 	subscrpt_info["EventTypes"] = []string{event}
 	sRequestJson, err := json.Marshal(subscrpt_info)
-	uri := ip + REDFISH_ROOT + RF_SUBSCRIPTION
-	client := http.Client{Timeout: 10 * time.Second}
+	uri := s.devicemap[ip].Protocol + "://" + ip + REDFISH_ROOT + RF_SUBSCRIPTION
+	client := s.httpclient
 	resp, err := client.Post(uri, CONTENT_TYPE, bytes.NewBuffer(sRequestJson))
 	if err != nil {
 		fmt.Println(err)
@@ -54,19 +51,37 @@ func add_subscription(ip string, event string) (rtn bool, id uint) {
 		fmt.Println("Add ", event, " subscription failed. HTTP response status: ",  resp.Status)
 		return
 	}
-
 	rtn = true
 	loc := resp.Header["Location"]
 	re := regexp.MustCompile(`/(\w+)$`)
 	match := re.FindStringSubmatch(loc[0])
-	idint, _ := strconv.Atoi(match[1])
-	id = uint(idint)
-	fmt.Println("Subscription", event, "id", id, "was successfully added")
+	s.devicemap[ip].Subscriptions[event] = match[1]
+
+	if f != nil {
+		b, err := json.Marshal(s.devicemap[ip])
+fmt.Println(string(b))
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			f.Truncate(0)
+			f.Seek(0, 0)
+			n, err := f.Write(b)
+			if err != nil {
+				fmt.Println("err wrote", n, "bytes")
+				fmt.Println(err)
+			}
+		}
+	} else {
+		fmt.Println("file handle is nil")
+	}
+
+	fmt.Println("Subscription", event, "id", match[1], "was successfully added")
 	return
 }
 
-func remove_subscription(ip string, id uint) bool {
-	uri := ip + REDFISH_ROOT + RF_SUBSCRIPTION + strconv.Itoa(int(id))
+func (s *Server) remove_subscription(ip string, event string, f *os.File) bool {
+	id := s.devicemap[ip].Subscriptions[event]
+	uri := s.devicemap[ip].Protocol + "://" + ip + REDFISH_ROOT + RF_SUBSCRIPTION + "/" + id
 	req, _ := http.NewRequest("DELETE", uri, nil)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -82,6 +97,24 @@ func remove_subscription(ip string, id uint) bool {
 		fmt.Println(result["data"])
 		fmt.Println("Remove subscription failed. HTTP response status:", resp.Status)
 		return false
+	}
+	delete(s.devicemap[ip].Subscriptions, event)
+
+	if f != nil {
+		b, err := json.Marshal(s.devicemap[ip])
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			f.Truncate(0)
+			f.Seek(0, 0)
+			n, err := f.Write(b)
+			if err != nil {
+				fmt.Println("!!!!! err wrote", n, "bytes")
+				fmt.Println(err)
+			} else {
+				fmt.Println("wrote", n, "bytes")
+			}
+		}
 	}
 	fmt.Println("Subscription id", id, "was successfully removed")
 	return true

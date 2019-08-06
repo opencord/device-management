@@ -26,8 +26,7 @@ import (
 func (s *Server) get_status(ip string, service string) (rtn bool, data []string) {
 	rtn = false
 
-//	uri := "https://"+ip + REDFISH_ROOT + service
-	uri := s.devicemap[ip].protocol+"://"+ip + REDFISH_ROOT + service
+	uri := s.devicemap[ip].Protocol + "://"+ip + REDFISH_ROOT + service
         fmt.Printf("%q", uri)
 	resp, err := http.Get(uri)
 	if err != nil {
@@ -44,7 +43,7 @@ func (s *Server) get_status(ip string, service string) (rtn bool, data []string)
 		matches := re.FindAllString(memberstr, -1)
 		for _, match := range matches {
 			m := strings.Trim(match, "[]")
-			uri = s.devicemap[ip].protocol +"://"+ip + strings.TrimPrefix(m, "@odata.id:")
+			uri = s.devicemap[ip].Protocol +"://"+ip + strings.TrimPrefix(m, "@odata.id:")
 			fmt.Println("Printing URI")
 			fmt.Println(uri)
 			resp, err = http.Get(uri)
@@ -58,8 +57,8 @@ func (s *Server) get_status(ip string, service string) (rtn bool, data []string)
 					data = append(data, string(b))
 					rtn = true
 				}
+				defer resp.Body.Close()
 			}
-			defer resp.Body.Close()
 		}
 	}
 	return 
