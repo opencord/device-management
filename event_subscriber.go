@@ -23,7 +23,7 @@ import (
 	"os"
 )
 
-const RF_SUBSCRIPTION = "/EventService/Subscriptions"
+const RF_SUBSCRIPTION = "/EventService/Subscriptions/"
 
 func (s *Server) add_subscription(ip string, event string, f *os.File) (rtn bool) {
 	rtn = false
@@ -59,7 +59,7 @@ func (s *Server) add_subscription(ip string, event string, f *os.File) (rtn bool
 
 	if f != nil {
 		b, err := json.Marshal(s.devicemap[ip])
-fmt.Println(string(b))
+		fmt.Println(string(b))
 		if err != nil {
 			fmt.Println(err)
 		} else {
@@ -81,7 +81,7 @@ fmt.Println(string(b))
 
 func (s *Server) remove_subscription(ip string, event string, f *os.File) bool {
 	id := s.devicemap[ip].Subscriptions[event]
-	uri := s.devicemap[ip].Protocol + "://" + ip + REDFISH_ROOT + RF_SUBSCRIPTION + "/" + id
+	uri := s.devicemap[ip].Protocol + "://" + ip + REDFISH_ROOT + RF_SUBSCRIPTION + id
 	req, _ := http.NewRequest("DELETE", uri, nil)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {

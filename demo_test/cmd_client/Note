@@ -1,0 +1,96 @@
+// Copyright 2018 Open Networking Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+At the root of the device-management source tree
+1. cd demotest
+   make demotest
+   ./demotest
+2. Create another ssh session
+   cd ./demotest/cmd_cleint
+   make cmd_cl
+   ./cmd_cl
+
+   then it will have "CMD to send:" prompt
+   You can use the following "client cmd" to test.
+
+   Example:
+
+   For the first time, you need to use "attach:ipaddress:port:vendorname:freq" to set the device's IP related info.
+   If successful, you will get "[ipaddress:port]CMD to send:" prompt to indicate what device you attached now. 
+   This attach will subscribe default 3 types events into the server.  
+   You can use the following wget to check if any events subscriptions on the device.
+
+   wget --no-check-certificate  \
+   -qO- https://RFSERVERIP:8888/redfish/v1/EventService/Subscriptions/ \
+   | python -m json.tool
+
+   You can also use "unsub:add:rm:alert" to unsubscribe all 3 types of event subscriptions on the device.
+
+   And use "QUIT" to leave test.
+
+--------------------------------------------------------------------------------------
+Test items								client cmd
+--------------------------------------------------------------------------------------
+set device info								Example:
+
+Set IP 192.168.4.27 port 8888 vendor "edgecore" freq 180
+									attach:192.168.4.27:8888:edgecore:180
+--------------------------------------------------------------------------------------
+set multi-deivies info                                                  Example:
+
+									attach:192.168.4.27:8888:edgecore:180
+									attach:192.168.3.34:8888:edgecore:180
+--------------------------------------------------------------------------------------
+UnSubscribe all events(ResourceAdded/ResourceRemoved/Alert)		unsub:add:rm:alert
+--------------------------------------------------------------------------------------
+Subscribe all events(ResourceAdded/ResourceRemoved/Alert) 		sub:add:rm:alert
+--------------------------------------------------------------------------------------
+Subscribe and unsubscribe an event					Example:	
+
+Subscribe ResourceAdded event 						sub:add
+Subscribe ResourceRemoved event						sub:rm
+Subscribe Alert event							sub:alert
+Unsubscribe ResourceAdded event						unsub:add
+Unsubscribe ResourceRemoved event					unsub:rm
+Unsubscribe Alert event							unsub:alert
+--------------------------------------------------------------------------------------
+Subscribe and unsubscribe multiple events, out of order			Use the above commands to do test.
+--------------------------------------------------------------------------------------
+Subscribe an unsupported event						sub:update
+--------------------------------------------------------------------------------------
+Subscribe to an already subscribed event				Example:
+
+									sub:add
+									sub:add
+--------------------------------------------------------------------------------------
+Unsubscribe  an unsupported event					unsub:update
+--------------------------------------------------------------------------------------
+Unsubscribe a supported but not-subscribed event			Example:
+
+									unsub:add:rm:alert
+									unsub:add
+									unsub:rm
+									unsub:alert
+--------------------------------------------------------------------------------------
+Change polling interval 						Example: 
+
+Set frequecny to 30 seconds
+									period:30
+--------------------------------------------------------------------------------------
+Show support event list							showeventlist	
+--------------------------------------------------------------------------------------
+* During and after each test, verify the list of events subscribed	wget --no-check-certificate  \
+									-qO- https://192.168.4.27:8888/redfish/v1/EventService/Subscriptions/ \
+									| python -m json.tool
+--------------------------------------------------------------------------------------
