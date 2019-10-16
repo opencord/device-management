@@ -26,9 +26,7 @@ At the root of the device-management source tree
 
    Example:
 
-   For the first time, you need to use "attach:ipaddress:port:vendorname:freq" to set the device's IP related info.
-   If successful, you will get "[ipaddress:port]CMD to send:" prompt to indicate what device you attached now. 
-   This attach will subscribe default 3 types events into the server.  
+   Attach a device will subscribe default 3 types events into the server.  
    You can use the following wget to check if any events subscriptions on the device.
 
    wget --no-check-certificate  \
@@ -42,60 +40,70 @@ At the root of the device-management source tree
 --------------------------------------------------------------------------------------
 Test items								client cmd
 --------------------------------------------------------------------------------------
-set device info								Example:
+register one device								Example:
 
-Set IP 192.168.4.27 port 8888 vendor "edgecore" freq 180
-									attach:192.168.4.27:8888:edgecore:180
+Set IP 192.168.4.27 port 8888 freq 180
+									attach 192.168.4.27:8888:180
 --------------------------------------------------------------------------------------
-set multi-device info                                                  Example:
+register multiple devices							Example:
 
-									attach:192.168.4.27:8888:edgecore:180
-									attach:192.168.3.34:8888:edgecore:180
+Set "IP 192.168.4.27 port 8888 freq 180" and "IP 192.168.4.26 port 8888 freq 120"
+									attach 192.168.4.27:8888:180 192.168.4.26:8888:120
+
+--------------------------------------------------------------------------------------
+delete devices									Example:
+
+Delete "IP 192.168.4.27" and "IP 192.168.3.34"
+
+									delete 192.168.4.27:8888 192.168.4.26:8888
 --------------------------------------------------------------------------------------
 Get Current List of Devices monitored					showdevices
 									Return from server: 192.168.4.26:8888,192.168.4.27:8888
 --------------------------------------------------------------------------------------
 UnSubscribe all events(ResourceAdded/ResourceRemoved/Alert)		unsub:192.168.4.27:8888:add:rm:alert
+=======
+UnSubscribe all events(ResourceAdded/ResourceRemoved/Alert)		unsub 192.168.4.27:8888:add:rm:alert
+>>>>>>> SEBA-841 importer to parse all status from redfish server for data collection purpose / remove demotest binary
 --------------------------------------------------------------------------------------
-Subscribe all events(ResourceAdded/ResourceRemoved/Alert) 		sub:192.168.4.27:8888:add:rm:alert
+Subscribe all events(ResourceAdded/ResourceRemoved/Alert) 		sub 192.168.4.27:8888:add:rm:alert
 --------------------------------------------------------------------------------------
 Subscribe and unsubscribe an event					Example:	
 
-Subscribe ResourceAdded event 						sub:192.168.4.27:8888:add
-Subscribe ResourceRemoved event						sub:192.168.4.27:8888:rm
-Subscribe Alert event							sub:192.168.4.27:8888:alert
-Unsubscribe ResourceAdded event						unsub:192.168.4.27:8888:add
-Unsubscribe ResourceRemoved event					unsub:192.168.4.27:8888:rm
-Unsubscribe Alert event							unsub:192.168.4.27:8888:alert
+Subscribe ResourceAdded event 						sub 192.168.4.27:8888:add
+Subscribe ResourceRemoved event						sub 192.168.4.27:8888:rm
+Subscribe Alert event							sub 192.168.4.27:8888:alert
+Unsubscribe ResourceAdded event						unsub 192.168.4.27:8888:add
+Unsubscribe ResourceRemoved event					unsub 192.168.4.27:8888:rm
+Unsubscribe Alert event							unsub 192.168.4.27:8888:alert
 --------------------------------------------------------------------------------------
 Subscribe and unsubscribe multiple events, out of order			Use the above commands to do test.
 --------------------------------------------------------------------------------------
-Subscribe an unsupported event						sub:192.168.4.27:8888:update
+Subscribe an unsupported event						sub 192.168.4.27:8888:update
 --------------------------------------------------------------------------------------
 Subscribe to an already subscribed event				Example:
 
-									sub:192.168.4.27:8888:add
-									sub:192.168.4.27:8888:add
+									sub 192.168.4.27:8888:add
+									sub 192.168.4.27:8888:add
 --------------------------------------------------------------------------------------
-Unsubscribe  an unsupported event					unsub:192.168.4.27:8888:update
+Unsubscribe  an unsupported event					unsub 192.168.4.27:8888:update
 --------------------------------------------------------------------------------------
 Unsubscribe a supported but not-subscribed event			Example:
 
-									unsub:192.168.4.27:8888:add:rm:alert
-									unsub:192.168.4.27:8888:add
-									unsub:192.168.4.27:8888:rm
-									unsub:192.168.4.27:8888:alert
+									unsub 192.168.4.27:8888:add:rm:alert
+									unsub 192.168.4.27:8888:add
+									unsub 192.168.4.27:8888:rm
+									unsub 192.168.4.27:8888:alert
 --------------------------------------------------------------------------------------
 Change polling interval 						Example: 
 
 Set frequecny to 30 seconds
-									period:192.168.4.27:8888:30
+									period 192.168.4.27:8888:30
 --------------------------------------------------------------------------------------
-Show support event list vendor						showeventlist:edgecore
+Show list of supported event						showeventlist 192.168.4.27:8888
 -----------------------------------------------------------------------------------------------
-Show current events subscribed by device                               showdeviceeventlist:192.168.4.27:8888
+Show current events subscribed by device                               showdeviceeventlist 192.168.4.27:8888
 ------------------------------------------------------------------------------------------------------------ 
-Clear all current events subscribed by device                          cleardeviceeventlist:192.168.4.27:8888
+Clear all current events subscribed by device                          cleardeviceeventlist 192.168.4.27:8888
 -------------------------------------------------------------------------------------------------------------
 * During and after each test, verify the list of events subscribed	wget --no-check-certificate  \
 									-qO- https://192.168.4.27:8888/redfish/v1/EventService/Subscriptions/ \

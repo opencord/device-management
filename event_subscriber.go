@@ -21,27 +21,31 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"io/ioutil"
 )
 
-const RF_SUBSCRIPTION = "/EventService/Subscriptions/"
+const RF_EVENTSERVICE = "/redfish/v1/EventService/"
+const RF_SUBSCRIPTION = RF_EVENTSERVICE + "Subscriptions/"
 
-func (s *Server) add_subscription(ip string, event string, f *os.File) (rtn bool) {
+func (s *Server) add_subscription(ip string, event string) (rtn bool) {
 	rtn = false
 
 	destip := os.Getenv("EVENT_NOTIFICATION_DESTIP") + ":" + os.Getenv("DEVICE_MANAGEMENT_DESTPORT")
 	subscrpt_info := map[string]interface{}{"Context": "TBD-" + destip, "Protocol": "Redfish"}
 	subscrpt_info["Name"] = event + " event subscription"
-	subscrpt_info["Destination"] = "https://" + destip
+	subscrpt_info["Destination"] = RF_DEFAULT_PROTOCOL + destip
 	subscrpt_info["EventTypes"] = []string{event}
 	sRequestJson, err := json.Marshal(subscrpt_info)
-	uri := s.devicemap[ip].Protocol + "://" + ip + REDFISH_ROOT + RF_SUBSCRIPTION
+	uri := RF_DEFAULT_PROTOCOL + ip + RF_SUBSCRIPTION
 	client := s.httpclient
 	resp, err := client.Post(uri, CONTENT_TYPE, bytes.NewBuffer(sRequestJson))
+	if resp != nil {
+		defer resp.Body.Close()
+	}
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	defer resp.Body.Close()
 
 	if resp.StatusCode != 201 {
 		result := make(map[string]interface{})
@@ -57,38 +61,22 @@ func (s *Server) add_subscription(ip string, event string, f *os.File) (rtn bool
 	match := re.FindStringSubmatch(loc[0])
 	s.devicemap[ip].Subscriptions[event] = match[1]
 
-	if f != nil {
-		b, err := json.Marshal(s.devicemap[ip])
-		fmt.Println(string(b))
-		if err != nil {
-			fmt.Println(err)
-		} else {
-			f.Truncate(0)
-			f.Seek(0, 0)
-			n, err := f.Write(b)
-			if err != nil {
-				fmt.Println("err wrote", n, "bytes")
-				fmt.Println(err)
-			}
-		}
-	} else {
-		fmt.Println("file handle is nil")
-	}
-
 	fmt.Println("Subscription", event, "id", match[1], "was successfully added")
 	return
 }
 
-func (s *Server) remove_subscription(ip string, event string, f *os.File) bool {
+func (s *Server) remove_subscription(ip string, event string) bool {
 	id := s.devicemap[ip].Subscriptions[event]
-	uri := s.devicemap[ip].Protocol + "://" + ip + REDFISH_ROOT + RF_SUBSCRIPTION + id
+	uri := RF_DEFAULT_PROTOCOL + ip + RF_SUBSCRIPTION + id
 	req, _ := http.NewRequest("DELETE", uri, nil)
 	resp, err := http.DefaultClient.Do(req)
+	if resp != nil {
+		defer resp.Body.Close()
+	}
 	if err != nil {
 		fmt.Println(err)
 		return false
 	}
-	defer resp.Body.Close()
 
 	if code := resp.StatusCode; code < 200 && code > 299 {
 		result := make(map[string]interface{})
@@ -100,22 +88,36 @@ func (s *Server) remove_subscription(ip string, event string, f *os.File) bool {
 	}
 	delete(s.devicemap[ip].Subscriptions, event)
 
-	if f != nil {
-		b, err := json.Marshal(s.devicemap[ip])
-		if err != nil {
-			fmt.Println(err)
-		} else {
-			f.Truncate(0)
-			f.Seek(0, 0)
-			n, err := f.Write(b)
-			if err != nil {
-				fmt.Println("!!!!! err wrote", n, "bytes")
-				fmt.Println(err)
-			} else {
-				fmt.Println("wrote", n, "bytes")
-			}
-		}
-	}
 	fmt.Println("Subscription id", id, "was successfully removed")
 	return true
+}
+
+func (s *Server) get_event_types(ip string) (eventtypes []string ) {
+	resp, err := http.Get(RF_DEFAULT_PROTOCOL + ip + RF_EVENTSERVICE)
+	fmt.Println("get_event_types")
+	if resp != nil {
+		defer resp.Body.Close()
+	}
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	m := map[string]interface{}{}
+	err = json.Unmarshal([]byte(body), &m)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	e := m["EventTypesForSubscription"].([]interface{})
+	fmt.Printf("supported event types %v\n", e)
+	for _, val := range e {
+		eventtypes = append(eventtypes, val.(string))
+	}
+	return
 }

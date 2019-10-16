@@ -1,0 +1,82 @@
+{
+   "Oem" : {
+      "Intel_RackScale" : {
+         "Location" : {
+            "Id" : null,
+            "ParentId" : null
+         },
+         "@odata.type" : "#Intel.Oem.Chassis"
+      }
+   },
+   "Links" : {
+      "Oem" : {
+         "Intel_RackScale" : {
+            "@odata.type" : "#Intel.Oem.ChassisLinks",
+            "Switches" : [
+               {
+                  "@odata.id" : "/redfish/v1/EthernetSwitches/1"
+               }
+            ]
+         }
+      },
+      "Drives" : [
+         {
+            "@odata.id" : "/redfish/v1/Chassis/1/Drives/1"
+         }
+      ],
+      "ManagedBy" : [
+         {
+            "@odata.id" : "/redfish/v1/Managers/1"
+         }
+      ],
+      "Storage" : [
+         {
+            "@odata.id" : "/redfish/v1/Systems/1/Storage/1"
+         }
+      ],
+      "ComputerSystems" : [
+         {
+            "@odata.id" : "/redfish/v1/Systems/1"
+         }
+      ],
+      "@odata.type" : "#Chassis.v1_2_0.Links",
+      "Contains" : []
+   },
+   "Power" : {
+      "@odata.id" : "/redfish/v1/Chassis/1/Power"
+   },
+   "Name" : "Chassis",
+   "Id" : "1",
+   "@odata.id" : "/redfish/v1/Chassis/1",
+   "@odata.context" : "/redfish/v1/$metadata#Chassis.Chassis",
+   "@odata.type" : "#Chassis.v1_3_0.Chassis",
+   "PowerState" : "On",
+   "PartNumber" : "",
+   "Status" : {
+      "State" : "Enabled",
+      "HealthRollup" : "OK",
+      "Health" : "OK"
+   },
+   "Actions" : {
+      "#Chassis.Reset" : {
+         "target" : "/redfish/v1/Chassis/1/Actions/Chassis.Reset",
+         "ResetType@Redfish.AllowableValues" : [
+            "ForceOff",
+            "GracefulShutdown",
+            "GracefulRestart",
+            "ForceRestart"
+         ]
+      }
+   },
+   "Manufacturer" : "",
+   "SerialNumber" : "",
+   "AssetTag" : "N/A",
+   "Description" : "Chassis of ",
+   "SKU" : null,
+   "Thermal" : {
+      "@odata.id" : "/redfish/v1/Chassis/1/Thermal"
+   },
+   "ChassisType" : "Drawer",
+   "IndicatorLED" : "Lit",
+   "Model" : ""
+}

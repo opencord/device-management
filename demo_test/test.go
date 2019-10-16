@@ -43,10 +43,6 @@ var EVENTS_MAP = map[string]string{
 	"update": "Update"}
 
 var default_address string = "localhost:31085"
-var default_port string = "8888"
-var default_vendor string = "edgecore"
-var default_freq uint64 = 180
-var attach_device_ip string = ""
 var importerTopic = "importer"
 var DataConsumer sarama.Consumer
 
@@ -54,128 +50,10 @@ var cc importer.DeviceManagementClient
 var ctx context.Context
 var conn *grpc.ClientConn
 
-/*///////////////////////////////////////////////////////////////////////*/
-// Allows user to register the device for data collection and frequency.
-//
-//
-/*///////////////////////////////////////////////////////////////////////*/
-func Attach(aip string, avendor string, afreq uint32) error {
-	fmt.Println("Received Attach\n")
-	var default_protocol string = "https"
-	deviceinfo := new(importer.DeviceInfo)
-	deviceinfo.IpAddress = aip
-	deviceinfo.Vendor = avendor
-	deviceinfo.Frequency = afreq
-	deviceinfo.Protocol = default_protocol
-	_, err := cc.SendDeviceInfo(ctx, deviceinfo)
-
-	return err
-}
-
-/*///////////////////////////////////////////////////////////////////////*/
-// Allows user to change the frequency of data collection
-//
-//
-/*///////////////////////////////////////////////////////////////////////*/
-func UpdateFreq(ip_address string, wd uint32) error {
-	fmt.Println("Received Period\n")
-	freqinfo := new(importer.FreqInfo)
-	freqinfo.Frequency = wd
-	freqinfo.IpAddress = ip_address
-	_, err := cc.SetFrequency(ctx, freqinfo)
-
-	return err
-}
-
-/*///////////////////////////////////////////////////////////////////////*/
-// Allows user to unsubscribe events
-//
-//
-/*///////////////////////////////////////////////////////////////////////*/
-func Subscribe(ip_address string, Giveneventlist []string) error {
-	fmt.Println("Received Subscribe\n")
-	giveneventlist := new(importer.GivenEventList)
-	giveneventlist.Events = Giveneventlist
-	giveneventlist.EventIpAddress = ip_address
-	_, err := cc.SubsrcribeGivenEvents(ctx, giveneventlist)
-
-	return err
-}
-
-/*///////////////////////////////////////////////////////////////////////*/
-// Allows user to unsubscribe events
-//
-//
-/*///////////////////////////////////////////////////////////////////////*/
-func UnSubscribe(ip_address string, Giveneventlist []string) error {
-	fmt.Println("Received UnSubscribe\n")
-	giveneventlist := new(importer.GivenEventList)
-	giveneventlist.Events = Giveneventlist
-	giveneventlist.EventIpAddress = ip_address
-	_, err := cc.UnSubsrcribeGivenEvents(ctx, giveneventlist)
-
-	return err
-}
-
-/*///////////////////////////////////////////////////////////////////////*/
-// Allows user to get the events supported by device
-//
-//
-/*///////////////////////////////////////////////////////////////////////*/
-func GetEventSupportList(vendor string) (error, []string) {
-	fmt.Println("Received GetEventSupportList\n")
-	vendorinfo := new(importer.VendorInfo)
-	vendorinfo.Vendor = vendor
-	var ret_msg *importer.EventList
-	ret_msg, err := cc.GetEventList(ctx, vendorinfo)
-	if err != nil {
-		return err, nil
-	} else {
-		return err, ret_msg.Events
-	}
-}
-
-/*///////////////////////////////////////////////////////////////////////*/
-// Allows user to get the current events subscribed by device
-//
-//
-/*///////////////////////////////////////////////////////////////////////*/
-func GetEventCurrentDeviceList(ip_address string) (error, []string) {
-	fmt.Println("Received GetEventCurrentDeviceList\n")
-	currentdeviceinfo := new(importer.Device)
-	currentdeviceinfo.IpAddress = ip_address
-	var ret_msg *importer.EventList
-	ret_msg, err := cc.GetCurrentEventList(ctx, currentdeviceinfo)
-	if err != nil {
-		return err, nil
-	} else {
-		return err, ret_msg.Events
-	}
-}
-
-/*///////////////////////////////////////////////////////////////////////*/
-// Allows user to get the current events subscribed by device
-//
-//
-/*///////////////////////////////////////////////////////////////////////*/
-func ClearCurrentDeviceEventList(ip_address string) error {
-	fmt.Println("Received ClearCurrentDeviceEventList\n")
-	currentdeviceinfo := new(importer.Device)
-	currentdeviceinfo.IpAddress = ip_address
-	_, err := cc.ClearCurrentEventList(ctx, currentdeviceinfo)
-
-	return err
-}
-
-/*///////////////////////////////////////////////////////////////////////*/
-// Allows user to get the current devices that are monitored
-//
-//
-/*///////////////////////////////////////////////////////////////////////*/
 func GetCurrentDevices() (error, []string) {
 	fmt.Println("Testing GetCurrentDevices\n")
 	empty := new(importer.Empty)
-	var ret_msg *importer.DeviceList
+	var ret_msg *importer.DeviceListByIp
 	ret_msg, err := cc.GetCurrentDevices(ctx, empty)
 	if err != nil {
 		return err, nil
@@ -259,208 +137,188 @@ func main() {
 	if err != nil {
 		fmt.Println("Accept error")
 		log.Fatal("Accept error: %v", err)
-	} else {
+	}
+	conn, err = grpc.Dial(default_address, grpc.WithInsecure())
+	if err != nil {
+		fmt.Println("could not connect")
+		log.Fatal("did not connect: %v", err)
+	}
+	defer conn.Close()
 
-		conn, err = grpc.Dial(default_address, grpc.WithInsecure())
-		if err != nil {
-			fmt.Println("could not connect")
-			log.Fatal("did not connect: %v", err)
-		}
-		defer conn.Close()
+	cc = importer.NewDeviceManagementClient(conn)
+	ctx = context.Background()
 
-		cc = importer.NewDeviceManagementClient(conn)
-		ctx = context.Background()
+	loop := true
 
-		loop := true
+	for loop == true {
+		cmdstr, _ := bufio.NewReader(connS).ReadString('\n')
+		cmdstr = strings.TrimSuffix(cmdstr, "\n")
+		s := strings.Split(cmdstr, " ")
+		newmessage := ""
+		cmd := string(s[0])
 
-		for loop == true {
-			cmd, _ := bufio.NewReader(connS).ReadString('\n')
+		switch cmd {
 
-			cmd = strings.TrimSuffix(cmd, "\n")
-			s := strings.Split(cmd, ":")
-			newmessage := "cmd error!!"
-			cmd = s[0]
-
-			switch string(cmd) {
-
-			case "attach":
-				cmd_size := len(s)
-				var err error
-				var uafreq uint64
-				if cmd_size == 5 {
-					aip := s[1]
-					aport := s[2]
-					avendor := s[3]
-					afreq := s[4]
-					uafreq, err = strconv.ParseUint(afreq, 10, 64)
-
-					if err != nil {
-						fmt.Print("ParseUint error!!\n")
-					}
-
-					attach_device_ip = aip + ":" + aport
-
-					err = Attach(attach_device_ip, avendor, uint32(uafreq))
-					if err != nil {
-						errStatus, _ := status.FromError(err)
-						fmt.Println(errStatus.Message())
-						fmt.Println(errStatus.Code())
-						fmt.Print("attach error!!\n")
-						newmessage = errStatus.Message()
-
-					} else {
-						fmt.Print("attatch IP:\n", attach_device_ip)
-						newmessage = attach_device_ip
-					}
-				} else {
-					fmt.Print("Need IP addres,port,vendor,freqs !!\n")
-					newmessage = "Need IP address !!"
-
+		case "attach" :
+			if len(s) < 2 {
+				newmessage = newmessage + "invalid command " + cmdstr + "\n"
+				break
+			}
+			var devicelist importer.DeviceList
+			var ipattached []string
+			for _, devinfo := range s[1:] {
+				info := strings.Split(devinfo, ":")
+				if len(info) != 3 {
+					newmessage = newmessage + "invalid command " + devinfo + "\n"
+					continue
 				}
-
-			case "period":
-				cmd_size := len(s)
-				fmt.Print("cmd_size period %d", cmd_size)
-				if cmd_size == 4 {
-					fip := s[1]
-					fport := s[2]
-					pv := s[3]
-					fmt.Print("pv:", pv)
-					u, err := strconv.ParseUint(pv, 10, 64)
-
-					if err != nil {
-						fmt.Print("ParseUint error!!\n")
-					} else {
-						wd := uint32(u)
-						ip_address := fip + ":" + fport
-						err = UpdateFreq(ip_address, wd)
-
-						if err != nil {
-							errStatus, _ := status.FromError(err)
-							fmt.Println(errStatus.Message())
-							fmt.Println(errStatus.Code())
-							newmessage = errStatus.Message()
-							fmt.Print("period error!!\n")
-						} else {
-							newmessage = strings.ToUpper(cmd)
-						}
-					}
-				} else {
-					fmt.Print("Need period value !!\n")
-					newmessage = "Need period value !!"
+				deviceinfo := new(importer.DeviceInfo)
+				deviceinfo.IpAddress = info[0] + ":" + info[1]
+				freq, err := strconv.ParseUint(info[2], 10, 32)
+				if (err != nil) {
+					newmessage = newmessage + "invalid command " + devinfo + "\n"
+					continue
 				}
+				deviceinfo.Frequency = uint32(freq)
+				devicelist.Device = append(devicelist.Device, deviceinfo)
+				ipattached = append(ipattached, deviceinfo.IpAddress)
+			}
+			_, err := cc.SendDeviceList(ctx, &devicelist)
+			if err != nil {
+				errStatus, _ := status.FromError(err)
+				newmessage = newmessage + errStatus.Message() + "\n"
+				fmt.Printf("attach error - status code %v message %v", errStatus.Code(), errStatus.Message())
+			} else {
+				ips := strings.Join(ipattached, " ")
+				newmessage = newmessage + ips + " attached\n"
+			}
+		case "delete" :
+			if len(s) < 2 {
+				newmessage = newmessage + "invalid command " + cmdstr + "\n"
+				break
+			}
+			var devicelist importer.DeviceListByIp
+			for _, ip := range s[1:] {
+				devicelist.Ip = append(devicelist.Ip, ip)
+			}
+			_, err := cc.DeleteDeviceList(ctx, &devicelist)
+			if err != nil {
+				errStatus, _ := status.FromError(err)
+				newmessage = newmessage + errStatus.Message() + "\n"
+				fmt.Printf("delete error - status code %v message %v", errStatus.Code(), errStatus.Message())
+			} else {
+				ips := strings.Join(devicelist.Ip, " ")
+				newmessage = newmessage + ips + " deleted\n"
+			}
+		case "period" :
+			if len(s) != 2 {
+				newmessage = newmessage + "invalid command " + cmdstr + "\n"
+				break
+			}
+			args := strings.Split(s[1], ":")
+			if len(args) != 3 {
+				newmessage = newmessage + "invalid command " + s[1] + "\n"
+				break
+			}
+			ip := args[0] + ":" + args[1]
+			pv := args[2]
+			u, err := strconv.ParseUint(pv, 10, 64)
+			if err != nil {
+				fmt.Print("ParseUint error!!\n")
+			} else {
+				freqinfo := new(importer.FreqInfo)
+				freqinfo.Frequency = uint32(u)
+				freqinfo.IpAddress = ip
+				_, err := cc.SetFrequency(ctx, freqinfo)
 
-			case "sub", "unsub":
-				cmd_size := len(s)
-				fmt.Print("cmd is :", cmd, cmd_size)
-				if cmd_size > 6 || cmd_size < 0 {
-					fmt.Print("error event !!")
-					newmessage = "error event !!"
+				if err != nil {
+					errStatus, _ := status.FromError(err)
+					newmessage = newmessage + errStatus.Message()
+					fmt.Printf("period error - status code %v message %v", errStatus.Code(), errStatus.Message())
 				} else {
-					ip := s[1]
-					port := s[2]
-					ip_address := ip + ":" + port
-					var events_list []string
-					for i := 3; i < cmd_size; i++ {
-						if value, ok := EVENTS_MAP[s[i]]; ok {
-							events_list = append(events_list, value)
-						} else {
-							fmt.Println("key not found")
-						}
-					}
-
-					if string(cmd) == "sub" {
-						err = Subscribe(ip_address, events_list)
-						if err != nil {
-							errStatus, _ := status.FromError(err)
-							fmt.Println(errStatus.Message())
-							fmt.Println(errStatus.Code())
-							newmessage = errStatus.Message()
-							fmt.Print("sub error!!")
-						} else {
-							newmessage = strings.ToUpper(cmd)
-						}
-					} else {
-						err = UnSubscribe(ip_address, events_list)
-						if err != nil {
-							errStatus, _ := status.FromError(err)
-							fmt.Println(errStatus.Message())
-							fmt.Println(errStatus.Code())
-							newmessage = errStatus.Message()
-							fmt.Print("unsub error!!")
-						} else {
-							newmessage = strings.ToUpper(cmd)
-						}
-					}
+					newmessage = newmessage + "data collection interval configured to " + pv + " seconds\n"
 				}
-
-			case "showeventlist":
-				cmd_size := len(s)
-				fmt.Print("cmd is :", cmd, cmd_size)
-				if cmd_size > 3 || cmd_size < 0 {
-					fmt.Print("error event !!")
-					newmessage = "error event !!"
-				} else {
-					vendor := s[1]
-					err, supportlist := GetEventSupportList(vendor)
-
-					if err != nil {
-						errStatus, _ := status.FromError(err)
-						fmt.Println(errStatus.Message())
-						fmt.Println(errStatus.Code())
-						newmessage = errStatus.Message()
-						fmt.Print("showeventlist error!!")
-					} else {
-						fmt.Print("showeventlist ", supportlist)
-						newmessage = strings.Join(supportlist[:], ",")
-					}
+			}
+		case "sub", "unsub":
+			if len(s) != 2 {
+				newmessage = newmessage + "invalid command " + cmdstr + "\n"
+				break
+			}
+			args := strings.Split(s[1], ":")
+			if len(args) < 3 {
+				newmessage = newmessage + "invalid command " + s[1] + "\n"
+				break
+			}
+			giveneventlist := new(importer.GivenEventList)
+			giveneventlist.EventIpAddress = args[0] + ":" + args[1]
+			for _, event := range args[2:] {
+				if value, ok := EVENTS_MAP[event]; ok {
+					giveneventlist.Events = append(giveneventlist.Events, value)
 				}
-
-			case "showdeviceeventlist":
-				cmd_size := len(s)
-				fmt.Print("cmd is :", cmd, cmd_size)
-				if cmd_size > 4 || cmd_size < 0 {
-					fmt.Print("error event !!")
-					newmessage = "error event !!"
-				} else {
-					eip := s[1]
-					eport := s[2]
-					ip_address := eip + ":" + eport
-					err, currentlist := GetEventCurrentDeviceList(ip_address)
-
-					if err != nil {
-						errStatus, _ := status.FromError(err)
-						fmt.Println(errStatus.Message())
-						fmt.Println(errStatus.Code())
-						newmessage = errStatus.Message()
-						fmt.Print("showdeviceeventlist error!!")
-					} else {
-						fmt.Print("showeventlist ", currentlist)
-						newmessage = strings.Join(currentlist[:], ",")
-					}
-				}
-
-			case "cleardeviceeventlist":
-				cmd_size := len(s)
-				fmt.Print("cmd is :", cmd, cmd_size)
-				if cmd_size > 4 || cmd_size < 0 {
-					fmt.Print("error event !!")
-					newmessage = "error event !!"
-				} else {
-					clip := s[1]
-					clport := s[2]
-					ip_address := clip + ":" + clport
-					err = ClearCurrentDeviceEventList(ip_address)
-					if err != nil {
-						errStatus, _ := status.FromError(err)
-						fmt.Println(errStatus.Message())
-						fmt.Println(errStatus.Code())
-						newmessage = errStatus.Message()
-						fmt.Print("cleardeviceeventlist  error!!")
-					} else {
-						newmessage = strings.ToUpper(cmd)
-					}
-				}
+			}
+			var err error
+			if cmd == "sub" {
+				_, err = cc.SubsrcribeGivenEvents(ctx, giveneventlist)
+			} else {
+				_, err = cc.UnSubsrcribeGivenEvents(ctx, giveneventlist)
+			}
+			if err != nil {
+				errStatus, _ := status.FromError(err)
+				newmessage = newmessage + errStatus.Message()
+				fmt.Printf("Un/subscribe error - status code %v message %v", errStatus.Code(), errStatus.Message())
+			} else {
+				newmessage = newmessage + cmd +  " successful\n"
+			}
+		case "showeventlist":
+			if len(s) != 2 {
+				newmessage = newmessage + "invalid command " + s[1] + "\n"
+				break
+			}
+			currentdeviceinfo := new(importer.Device)
+			currentdeviceinfo.IpAddress = s[1]
+			ret_msg, err := cc.GetEventList(ctx, currentdeviceinfo)
+			if err != nil {
+				errStatus, _ := status.FromError(err)
+				newmessage = errStatus.Message()
+				fmt.Printf("showeventlist error - status code %v message %v", errStatus.Code(), errStatus.Message())
+			} else {
+				fmt.Print("showeventlist ", ret_msg.Events)
+				newmessage = strings.Join(ret_msg.Events[:], ",")
+			}
+		case "showdeviceeventlist":
+			if len(s) != 2 {
+				newmessage = newmessage + "invalid command " + s[1] + "\n"
+				break
+			}
+			currentdeviceinfo := new(importer.Device)
+			currentdeviceinfo.IpAddress = s[1]
+			ret_msg, err := cc.GetCurrentEventList(ctx, currentdeviceinfo)
+			if err != nil {
+				errStatus, _ := status.FromError(err)
+				fmt.Printf("showdeviceeventlist error - status code %v message %v", errStatus.Code(), errStatus.Message())
+				newmessage = newmessage + errStatus.Message()
+			} else {
+				fmt.Print("showdeviceeventlist ", ret_msg.Events)
+				newmessage = strings.Join(ret_msg.Events[:], ",")
+			}
+		case "cleardeviceeventlist":
+			if len(s) != 2 {
+				newmessage = newmessage + "invalid command " + s[1] + "\n"
+				break
+			}
+			currentdeviceinfo := new(importer.Device)
+			currentdeviceinfo.IpAddress = s[1]
+			_, err := cc.ClearCurrentEventList(ctx, currentdeviceinfo)
+			if err != nil {
+				errStatus, _ := status.FromError(err)
+				newmessage = newmessage + errStatus.Message()
+				fmt.Printf("cleardeviceeventlist error - status code %v message %v", errStatus.Code(), errStatus.Message())
+			} else {
+				newmessage = newmessage + currentdeviceinfo.IpAddress + " events cleared\n"
+			}
+		case "QUIT":
+			loop = false
+			newmessage = "QUIT"
 
 			case "showdevices":
 				cmd_size := len(s)
@@ -482,14 +340,10 @@ func main() {
 						newmessage = strings.Join(currentlist[:], ", ")
 					}
 				}
-			case "QUIT":
-				loop = false
-				newmessage = "QUIT"
-
-			default:
-			}
-			// send string back to client
-			connS.Write([]byte(newmessage + "\n"))
+		default:
+			newmessage = newmessage + "invalid command " + cmdstr + "\n"
 		}
+			// send string back to client
+		connS.Write([]byte(newmessage + "\n"))
 	}
 }

@@ -12,6 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cmd_cl:
+cmd_cl: cmd_cl.go
 	go build -i -v -o $@
 

@@ -10,8 +10,6 @@ import "google/protobuf/empty.proto";
 message DeviceInfo {
 	string ip_address = 1;
 	uint32 frequency = 2;
-        string vendor = 3;
-	string protocol = 4;
 }
 
 message GivenEventList {
@@ -28,26 +26,28 @@ message FreqInfo {
 	uint32 Frequency = 2;
 }
 
-message VendorInfo {
-	string Vendor = 1;
-}
-
 message Device {
 	string IpAddress = 1;
 }
 
-message DeviceList {
-        repeated string ip = 1;
-}
-
 message Empty {}
 
+message DeviceList {
+	repeated DeviceInfo device = 1;
+}
+
+message DeviceListByIp {
+	repeated string Ip = 1;
+}
+
 service device_management {
-    rpc SendDeviceInfo(DeviceInfo) returns (google.protobuf.Empty) {}
+    rpc SendDeviceList(DeviceList) returns (google.protobuf.Empty) {}
+
+    rpc DeleteDeviceList(DeviceListByIp) returns (google.protobuf.Empty) {}
 
     rpc SetFrequency(FreqInfo) returns (google.protobuf.Empty) {}
 
-    rpc GetEventList(VendorInfo) returns (EventList) {}
+    rpc GetEventList(Device) returns (EventList) {}
 
     rpc SubsrcribeGivenEvents(GivenEventList)  returns (google.protobuf.Empty) {}
 
@@ -57,7 +57,7 @@ service device_management {
 
     rpc ClearCurrentEventList(Device) returns (google.protobuf.Empty) {}
 
-	rpc GetCurrentDevices(Empty) returns (DeviceList) {}
+	rpc GetCurrentDevices(Empty) returns (DeviceListByIp) {}
 }
 
 

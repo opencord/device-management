@@ -18,9 +18,6 @@ import "net"
 import "fmt"
 import "bufio"
 import "os"
-import "strings"
-
-var attach_ip string = ""
 
 func main() {
 	// connect to this socket
@@ -29,29 +26,14 @@ func main() {
 	reader := bufio.NewReader(os.Stdin)
 	for {
 		// read in input from stdin
-		if(attach_ip != ""){
-			fmt.Printf("[%v] CMD to send :", attach_ip)
-		}else{
-			fmt.Print("CMD to send :")
-		}
+		fmt.Print("CMD to send : ")
 		text, _ := reader.ReadString('\n')
-
 		// send to socket
 		fmt.Fprintf(conn, text + "\n")
 
-                cmd := strings.TrimSuffix(text, "\n")
-                s := strings.Split(cmd, ":")
-                cmd = s[0]
-
-		if(cmd == "attach"){
-			// listen for reply
-			t_attach_ip, _ := bufio.NewReader(conn).ReadString('\n')
-			attach_ip = strings.TrimSuffix(t_attach_ip, "\n")
-		}else{
-			// listen for reply
-			message, _ = bufio.NewReader(conn).ReadString('\n')
-			fmt.Print("Return from server: " + message)
-		}
+		// listen for reply
+		message, _ = bufio.NewReader(conn).ReadString('\n')
+		fmt.Print("Return from server: " + message)
 
 		if message == "QUIT\n"{
 			break
