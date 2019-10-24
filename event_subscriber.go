@@ -15,12 +15,12 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"bytes"
-	"regexp"
 	"os"
+	"regexp"
 )
 
 const RF_SUBSCRIPTION = "/EventService/Subscriptions/"
@@ -29,7 +29,7 @@ func (s *Server) add_subscription(ip string, event string, f *os.File) (rtn bool
 	rtn = false
 
 	destip := os.Getenv("EVENT_NOTIFICATION_DESTIP") + ":" + os.Getenv("DEVICE_MANAGEMENT_DESTPORT")
-	subscrpt_info := map[string]interface{}{"Context":"TBD","Protocol":"Redfish"}
+	subscrpt_info := map[string]interface{}{"Context": "TBD-" + destip, "Protocol": "Redfish"}
 	subscrpt_info["Name"] = event + " event subscription"
 	subscrpt_info["Destination"] = "https://" + destip
 	subscrpt_info["EventTypes"] = []string{event}
@@ -48,7 +48,7 @@ func (s *Server) add_subscription(ip string, event string, f *os.File) (rtn bool
 		json.NewDecoder(resp.Body).Decode(&result)
 		fmt.Println(result)
 		fmt.Println(result["data"])
-		fmt.Println("Add ", event, " subscription failed. HTTP response status: ",  resp.Status)
+		fmt.Println("Add ", event, " subscription failed. HTTP response status: ", resp.Status)
 		return
 	}
 	rtn = true
@@ -119,4 +119,3 @@ func (s *Server) remove_subscription(ip string, event string, f *os.File) bool {
 	fmt.Println("Subscription id", id, "was successfully removed")
 	return true
 }
-

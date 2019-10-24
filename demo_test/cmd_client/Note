@@ -52,44 +52,48 @@ set multi-deivies info                                                  Example:
 									attach:192.168.4.27:8888:edgecore:180
 									attach:192.168.3.34:8888:edgecore:180
 --------------------------------------------------------------------------------------
-UnSubscribe all events(ResourceAdded/ResourceRemoved/Alert)		unsub:add:rm:alert
+UnSubscribe all events(ResourceAdded/ResourceRemoved/Alert)		unsub:192.168.4.27:8888:add:rm:alert
 --------------------------------------------------------------------------------------
-Subscribe all events(ResourceAdded/ResourceRemoved/Alert) 		sub:add:rm:alert
+Subscribe all events(ResourceAdded/ResourceRemoved/Alert) 		sub:192.168.4.27:8888:add:rm:alert
 --------------------------------------------------------------------------------------
 Subscribe and unsubscribe an event					Example:	
 
-Subscribe ResourceAdded event 						sub:add
-Subscribe ResourceRemoved event						sub:rm
-Subscribe Alert event							sub:alert
-Unsubscribe ResourceAdded event						unsub:add
-Unsubscribe ResourceRemoved event					unsub:rm
-Unsubscribe Alert event							unsub:alert
+Subscribe ResourceAdded event 						sub:192.168.4.27:8888:add
+Subscribe ResourceRemoved event						sub:192.168.4.27:8888:rm
+Subscribe Alert event							sub:192.168.4.27:8888:alert
+Unsubscribe ResourceAdded event						unsub:192.168.4.27:8888:add
+Unsubscribe ResourceRemoved event					unsub:192.168.4.27:8888:rm
+Unsubscribe Alert event							unsub:192.168.4.27:8888:alert
 --------------------------------------------------------------------------------------
 Subscribe and unsubscribe multiple events, out of order			Use the above commands to do test.
 --------------------------------------------------------------------------------------
-Subscribe an unsupported event						sub:update
+Subscribe an unsupported event						sub:192.168.4.27:8888:update
 --------------------------------------------------------------------------------------
 Subscribe to an already subscribed event				Example:
 
-									sub:add
-									sub:add
+									sub:192.168.4.27:8888:add
+									sub:192.168.4.27:8888:add
 --------------------------------------------------------------------------------------
-Unsubscribe  an unsupported event					unsub:update
+Unsubscribe  an unsupported event					unsub:192.168.4.27:8888:update
 --------------------------------------------------------------------------------------
 Unsubscribe a supported but not-subscribed event			Example:
 
-									unsub:add:rm:alert
-									unsub:add
-									unsub:rm
-									unsub:alert
+									unsub:192.168.4.27:8888:add:rm:alert
+									unsub:192.168.4.27:8888:add
+									unsub:192.168.4.27:8888:rm
+									unsub:192.168.4.27:8888:alert
 --------------------------------------------------------------------------------------
 Change polling interval 						Example: 
 
 Set frequecny to 30 seconds
-									period:30
+									period:192.168.4.27:8888:30
 --------------------------------------------------------------------------------------
-Show support event list							showeventlist	
---------------------------------------------------------------------------------------
+Show support event list vendor						showeventlist:edgecore
+-----------------------------------------------------------------------------------------------
+Show current events subscribed by device                               showdeviceeventlist:192.168.4.27:8888
+------------------------------------------------------------------------------------------------------------ 
+Clear all current events subscribed by device                          cleardeviceeventlist:192.168.4.27:8888
+-------------------------------------------------------------------------------------------------------------
 * During and after each test, verify the list of events subscribed	wget --no-check-certificate  \
 									-qO- https://192.168.4.27:8888/redfish/v1/EventService/Subscriptions/ \
 									| python -m json.tool

@@ -24,6 +24,7 @@ demotest: prereq proto/importer.pb.go
 
 
 proto/importer.pb.go: ../proto/importer.proto
+	mkdir -p proto
 	protoc --proto_path=../proto \
 	-I${GOPATH}/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
 	--go_out=plugins=grpc:proto/ \

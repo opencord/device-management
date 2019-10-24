@@ -14,25 +14,45 @@ message DeviceInfo {
 	string protocol = 4;
 }
 
-message EventList {
+message GivenEventList {
 	string event_ip_address = 1;
         repeated string events = 2;
 }
 
-message SupportedEventList {
+message EventList {
         repeated string events = 1;
 }
 
+message FreqInfo {
+	string IpAddress = 1;
+	uint32 Frequency = 2;
+}
+
+message VendorInfo {
+	string Vendor = 1;
+}
+
+message Device {
+	string IpAddress = 1;
+}
+
+
+message Empty {}
 service device_management {
     rpc SendDeviceInfo(DeviceInfo) returns (google.protobuf.Empty) {}
 
-    rpc SetFrequency(DeviceInfo) returns (google.protobuf.Empty) {}
+    rpc SetFrequency(FreqInfo) returns (google.protobuf.Empty) {}
 
-    rpc GetEventList(DeviceInfo) returns (SupportedEventList) {}
+    rpc GetEventList(VendorInfo) returns (EventList) {}
 
-    rpc SubsrcribeGivenEvents(EventList)  returns (google.protobuf.Empty) {}
+    rpc SubsrcribeGivenEvents(GivenEventList)  returns (google.protobuf.Empty) {}
 
-    rpc UnSubsrcribeGivenEvents(EventList) returns (google.protobuf.Empty) {}
+    rpc UnSubsrcribeGivenEvents(GivenEventList) returns (google.protobuf.Empty) {}
+
+    rpc GetCurrentEventList(Device) returns (EventList) {}
+
+    rpc ClearCurrentEventList(Device) returns (google.protobuf.Empty) {}
+
 }
 
 
