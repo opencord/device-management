@@ -36,8 +36,12 @@ message Device {
 	string IpAddress = 1;
 }
 
+message DeviceList {
+        repeated string ip = 1;
+}
 
 message Empty {}
+
 service device_management {
     rpc SendDeviceInfo(DeviceInfo) returns (google.protobuf.Empty) {}
 
@@ -53,6 +57,7 @@ service device_management {
 
     rpc ClearCurrentEventList(Device) returns (google.protobuf.Empty) {}
 
+	rpc GetCurrentDevices(Empty) returns (DeviceList) {}
 }
 
 

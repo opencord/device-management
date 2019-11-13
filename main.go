@@ -75,7 +75,7 @@ type Server struct {
 }
 
 func (s *Server) ClearCurrentEventList(c context.Context, info *importer.Device) (*empty.Empty, error) {
-	fmt.Println("Received GetCurrentEventList\n")
+	fmt.Println("Received ClearCurrentEventList\n")
 	ip_address := info.IpAddress
 	_, found := s.devicemap[ip_address]
 	if !found {
@@ -97,7 +97,7 @@ func (s *Server) ClearCurrentEventList(c context.Context, info *importer.Device)
 }
 
 func (s *Server) GetCurrentEventList(c context.Context, info *importer.Device) (*importer.EventList, error) {
-	fmt.Println("Received ClearCurrentEventList\n")
+	fmt.Println("Received GetCurrentEventList\n")
 	_, found := s.devicemap[info.IpAddress]
 	if !found {
 		return nil, status.Errorf(codes.NotFound, "Device not registered")
@@ -275,6 +275,22 @@ func (s *Server) SendDeviceInfo(c context.Context, info *importer.DeviceInfo) (*
 	}
 	go s.collect_data(ip_address)
 	return &empty.Empty{}, nil
+}
+
+func (s *Server) GetCurrentDevices(c context.Context, e *importer.Empty) (*importer.DeviceList, error) {
+	fmt.Println("In Received GetCurrentDevices\n")
+
+	if len(s.devicemap) == 0 {
+		return nil, status.Errorf(codes.NotFound, "Devices not registered")
+	}
+	dl := new(importer.DeviceList)
+	for k, v := range s.devicemap {
+		if v != nil {
+			fmt.Printf("IpAdd[%s] \n", k)
+			dl.Ip = append(dl.Ip, k)
+		}
+	}
+	return dl, nil
 }
 
 func NewGrpcServer(grpcport string) (l net.Listener, g *grpc.Server, e error) {

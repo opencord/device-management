@@ -47,10 +47,13 @@ set device info								Example:
 Set IP 192.168.4.27 port 8888 vendor "edgecore" freq 180
 									attach:192.168.4.27:8888:edgecore:180
 --------------------------------------------------------------------------------------
-set multi-deivies info                                                  Example:
+set multi-device info                                                  Example:
 
 									attach:192.168.4.27:8888:edgecore:180
 									attach:192.168.3.34:8888:edgecore:180
+--------------------------------------------------------------------------------------
+Get Current List of Devices monitored					showdevices
+									Return from server: 192.168.4.26:8888,192.168.4.27:8888
 --------------------------------------------------------------------------------------
 UnSubscribe all events(ResourceAdded/ResourceRemoved/Alert)		unsub:192.168.4.27:8888:add:rm:alert
 --------------------------------------------------------------------------------------

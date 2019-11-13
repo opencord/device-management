@@ -128,8 +128,11 @@ func GetEventSupportList(vendor string) (error, []string) {
 	vendorinfo.Vendor = vendor
 	var ret_msg *importer.EventList
 	ret_msg, err := cc.GetEventList(ctx, vendorinfo)
-
-	return err, ret_msg.Events
+	if err != nil {
+		return err, nil
+	} else {
+		return err, ret_msg.Events
+	}
 }
 
 /*///////////////////////////////////////////////////////////////////////*/
@@ -143,8 +146,11 @@ func GetEventCurrentDeviceList(ip_address string) (error, []string) {
 	currentdeviceinfo.IpAddress = ip_address
 	var ret_msg *importer.EventList
 	ret_msg, err := cc.GetCurrentEventList(ctx, currentdeviceinfo)
-
-	return err, ret_msg.Events
+	if err != nil {
+		return err, nil
+	} else {
+		return err, ret_msg.Events
+	}
 }
 
 /*///////////////////////////////////////////////////////////////////////*/
@@ -159,6 +165,23 @@ func ClearCurrentDeviceEventList(ip_address string) error {
 	_, err := cc.ClearCurrentEventList(ctx, currentdeviceinfo)
 
 	return err
+}
+
+/*///////////////////////////////////////////////////////////////////////*/
+// Allows user to get the current devices that are monitored
+//
+//
+/*///////////////////////////////////////////////////////////////////////*/
+func GetCurrentDevices() (error, []string) {
+	fmt.Println("Testing GetCurrentDevices\n")
+	empty := new(importer.Empty)
+	var ret_msg *importer.DeviceList
+	ret_msg, err := cc.GetCurrentDevices(ctx, empty)
+	if err != nil {
+		return err, nil
+	} else {
+		return err, ret_msg.Ip
+	}
 }
 
 func init() {
@@ -439,6 +462,26 @@ func main() {
 					}
 				}
 
+			case "showdevices":
+				cmd_size := len(s)
+				fmt.Print("cmd is :", cmd, cmd_size)
+				if cmd_size > 2 || cmd_size < 0 {
+					fmt.Print("error event !!")
+					newmessage = "error event !!"
+				} else {
+					err, currentlist := GetCurrentDevices()
+
+					if err != nil {
+						errStatus, _ := status.FromError(err)
+						fmt.Println(errStatus.Message())
+						fmt.Println(errStatus.Code())
+						newmessage = errStatus.Message()
+						fmt.Print("showdevices error!!")
+					} else {
+						fmt.Print("showdevices ", currentlist)
+						newmessage = strings.Join(currentlist[:], ", ")
+					}
+				}
 			case "QUIT":
 				loop = false
 				newmessage = "QUIT"
