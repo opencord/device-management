@@ -1,4 +1,4 @@
-# Copyright 2019-present Open Networking Foundation
+# Copyrigh/ 2019-present Open Networking Foundation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -32,7 +32,24 @@ DOCKER_LABEL_VCS_REF     ?= $(shell git diff-index --quiet HEAD -- && git rev-pa
 DOCKER_LABEL_COMMIT_DATE ?= $(shell git diff-index --quiet HEAD -- && git show -s --format=%cd --date=iso-strict HEAD || echo "unknown" )
 DOCKER_LABEL_BUILD_DATE  ?= $(shell date -u "+%Y-%m-%dT%H:%M:%SZ")
 
+help:
+	@echo "Usage: make [<target>]"
+	@echo "where available targets are:"
+	@echo
+	@echo "build                : Build the docker images."
+	@echo "                         - If this is the first time you are building, choose 'make build' option."
+	@echo "clean                : Remove files created by the build and tests"
+	@echo "docker-push          : Push the docker images to an external repository"
+	@echo "lint-dockerfile      : Perform static analysis on Dockerfiles"
+	@echo "lint-style           : Verify code is properly gofmt-ed"
+	@echo "lint                 : Shorthand for lint-style & lint-sanity"
+	@echo "test                 : Generate reports for all go tests"
+	@echo
+
 all: test
+build: docker-build
+
+
 docker-build:
 	docker build $(DOCKER_BUILD_ARGS) \
 	-t ${DOCKER_IMAGENAME} \
@@ -44,6 +61,52 @@ docker-build:
 	-f Dockerfile .
 docker-push:
 	docker push ${DOCKER_IMAGENAME}
+
+PATH:=$(GOPATH)/bin:$(PATH)
+HADOLINT=$(shell PATH=$(GOPATH):$(PATH) which hadolint)
+
+lint-dockerfile:
+ifeq (,$(shell PATH=$(GOPATH):$(PATH) which hadolint))
+	mkdir -p $(GOPATH)/bin
+	curl -o $(GOPATH)/bin/hadolint -sNSL https://github.com/hadolint/hadolint/releases/download/v1.17.1/hadolint-$(shell uname -s)-$(shell uname -m)
+	chmod 755 $(GOPATH)/bin/hadolint
+endif
+	@echo "Running Dockerfile lint check ..."
+	@hadolint $$(find . -name "Dockerfile")
+	@echo "Dockerfile lint check OK"
+
+lint-style:
+ifeq (,$(shell which gofmt))
+	go get -u github.com/golang/go/src/cmd/gofmt
+endif
+	@echo "Running style check..."
+	@gofmt_out="$$(gofmt -l $$(find . -name '*.go' -not -path './vendor/*'))" ;\
+	if [ ! -z "$$gofmt_out" ]; then \
+	  echo "$$gofmt_out" ;\
+	  echo "Style check failed on one or more files ^, run 'go fmt' to fix." ;\
+	  exit 1 ;\
+	fi
+	@echo "Style check OK"
+
+
+lint: lint-style  lint-dockerfile
+
+# Rules to automatically install golangci-lint
+GOLANGCI_LINT_TOOL?=$(shell which golangci-lint)
+ifeq (,$(GOLANGCI_LINT_TOOL))
+GOLANGCI_LINT_TOOL=$(GOPATH)/bin/golangci-lint
+golangci_lint_tool_install:
+	# Same version as installed by Jenkins ci-management
+	# Note that install using `go get` is not recommended as per https://github.com/golangci/golangci-lint
+	curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b $(GOPATH)/bin v1.17.0
+else
+golangci_lint_tool_install:
+endif
+
+sca: golangci_lint_tool_install
+	rm -rf ./sca-report
+	@mkdir -p ./sca-report
+	$(GOLANGCI_LINT_TOOL) run --out-format junit-xml ./... 2>&1 | tee ./sca-report/sca-report.xml
 
 test: docker-build
 
