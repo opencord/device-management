@@ -15,12 +15,12 @@
 package main
 
 import (
-	importer "./proto"
+	"github.com/opencord/device-management/proto"
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"github.com/Shopify/sarama"
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	empty "github.com/golang/protobuf/ptypes/empty"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"

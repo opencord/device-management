@@ -36,21 +36,31 @@ help:
 	@echo "Usage: make [<target>]"
 	@echo "where available targets are:"
 	@echo
+	@echo "proto/importer.pb.go : Build importer.pb.go for go build ./.."
 	@echo "build                : Build the docker images."
 	@echo "                         - If this is the first time you are building, choose 'make build' option."
 	@echo "clean                : Remove files created by the build and tests"
 	@echo "docker-push          : Push the docker images to an external repository"
 	@echo "lint-dockerfile      : Perform static analysis on Dockerfiles"
 	@echo "lint-style           : Verify code is properly gofmt-ed"
+	@echo "lint-sanity          : Verify that 'go vet' doesn't report any issues"
+	@echo "lint-mod             : Verify the integrity of the 'mod' files"
 	@echo "lint                 : Shorthand for lint-style & lint-sanity"
 	@echo "test                 : Generate reports for all go tests"
 	@echo
 
 all: test
+proto/importer.pb.go: proto/importer.proto
+	mkdir -p proto
+	protoc --proto_path=proto \
+	-I${GOPATH}/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
+	--go_out=plugins=grpc:proto/ \
+	proto/importer.proto
+
 build: docker-build
 
 
-docker-build:
+docker-build: 
 	docker build $(DOCKER_BUILD_ARGS) \
 	-t ${DOCKER_IMAGENAME} \
 	--build-arg org_label_schema_version="${VERSION}" \
@@ -88,8 +98,16 @@ endif
 	fi
 	@echo "Style check OK"
 
+lint-sanity:
+	@echo "Running sanity check..."
+	@go vet -mod=vendor ./...
+	@echo "Sanity check OK"
 
-lint: lint-style  lint-dockerfile
+lint-mod:
+	@echo "Running dependency check..."
+	@go mod verify
+	@echo "Dependency check OK"
+lint: lint-style  lint-dockerfile lint-sanity lint-mod
 
 # Rules to automatically install golangci-lint
 GOLANGCI_LINT_TOOL?=$(shell which golangci-lint)

@@ -15,13 +15,13 @@
 package main
 
 import (
-	importer "./proto"
+	"github.com/opencord/device-management/demo_test/proto"
 	"bufio"
 	"bytes"
 	"crypto/tls"
 	"fmt"
 	"github.com/Shopify/sarama"
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/status"

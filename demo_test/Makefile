@@ -16,7 +16,7 @@ prereq:
 	go get -v google.golang.org/grpc
 	go get -v github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
 	go get -v github.com/golang/protobuf/protoc-gen-go
-	go get github.com/Sirupsen/logrus
+	go get github.com/sirupsen/logrus
 	go get github.com/Shopify/sarama
 
 demotest: prereq proto/importer.pb.go
