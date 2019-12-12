@@ -82,7 +82,7 @@ ifeq (,$(shell PATH=$(GOPATH):$(PATH) which hadolint))
 	chmod 755 $(GOPATH)/bin/hadolint
 endif
 	@echo "Running Dockerfile lint check ..."
-	@hadolint $$(find . -name "Dockerfile")
+	@hadolint $$(find .  -type f -not -path "./vendor/*"  -name "Dockerfile")
 	@echo "Dockerfile lint check OK"
 
 lint-style:

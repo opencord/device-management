@@ -29,13 +29,13 @@ func main() {
 		fmt.Print("CMD to send : ")
 		text, _ := reader.ReadString('\n')
 		// send to socket
-		fmt.Fprintf(conn, text + "\n")
+		fmt.Fprintf(conn, text+"\n")
 
 		// listen for reply
 		message, _ = bufio.NewReader(conn).ReadString('\n')
 		fmt.Print("Return from server: " + message)
 
-		if message == "QUIT\n"{
+		if message == "QUIT\n" {
 			break
 		}
 	}

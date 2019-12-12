@@ -18,10 +18,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"regexp"
-	"io/ioutil"
 )
 
 const RF_EVENTSERVICE = "/redfish/v1/EventService/"
@@ -92,7 +92,7 @@ func (s *Server) remove_subscription(ip string, event string) bool {
 	return true
 }
 
-func (s *Server) get_event_types(ip string) (eventtypes []string ) {
+func (s *Server) get_event_types(ip string) (eventtypes []string) {
 	resp, err := http.Get(RF_DEFAULT_PROTOCOL + ip + RF_EVENTSERVICE)
 	fmt.Println("get_event_types")
 	if resp != nil {

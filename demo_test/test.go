@@ -15,12 +15,12 @@
 package main
 
 import (
-	"github.com/opencord/device-management/demo_test/proto"
 	"bufio"
 	"bytes"
 	"crypto/tls"
 	"fmt"
 	"github.com/Shopify/sarama"
+	"github.com/opencord/device-management/demo_test/proto"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -51,7 +51,7 @@ var ctx context.Context
 var conn *grpc.ClientConn
 
 func GetCurrentDevices() (error, []string) {
-	fmt.Println("Testing GetCurrentDevices\n")
+	fmt.Println("Testing GetCurrentDevices")
 	empty := new(importer.Empty)
 	var ret_msg *importer.DeviceListByIp
 	ret_msg, err := cc.GetCurrentDevices(ctx, empty)
@@ -73,7 +73,7 @@ func topicListener(topic *string, master sarama.Consumer) {
 	log.Info("Starting topicListener for ", *topic)
 	consumer, err := master.ConsumePartition(*topic, 0, sarama.OffsetOldest)
 	if err != nil {
-		log.Error("topicListener panic, topic=[%s]: %s", *topic, err.Error())
+		log.Errorf("topicListener panic, topic=[%s]: %s", *topic, err.Error())
 		os.Exit(1)
 	}
 	signals := make(chan os.Signal, 1)
@@ -83,9 +83,9 @@ func topicListener(topic *string, master sarama.Consumer) {
 		for {
 			select {
 			case err := <-consumer.Errors():
-				log.Error("Consumer error: %s", err.Err)
+				log.Errorf("Consumer error: %s", err.Err)
 			case msg := <-consumer.Messages():
-				log.Info("Got message on topic=[%s]: %s", *topic, string(msg.Value))
+				log.Infof("Got message on topic=[%s]: %s", *topic, string(msg.Value))
 			case <-signals:
 				log.Warn("Interrupt is detected")
 				os.Exit(1)
@@ -129,19 +129,19 @@ func main() {
 	ln, err := net.Listen("tcp", ":9999")
 	if err != nil {
 		fmt.Println("could not listen")
-		log.Fatal("did not listen: %v", err)
+		log.Fatalf("did not listen: %v", err)
 	}
 	defer ln.Close()
 
 	connS, err := ln.Accept()
 	if err != nil {
 		fmt.Println("Accept error")
-		log.Fatal("Accept error: %v", err)
+		log.Fatalf("Accept error: %v", err)
 	}
 	conn, err = grpc.Dial(default_address, grpc.WithInsecure())
 	if err != nil {
 		fmt.Println("could not connect")
-		log.Fatal("did not connect: %v", err)
+		log.Fatalf("did not connect: %v", err)
 	}
 	defer conn.Close()
 
@@ -159,7 +159,7 @@ func main() {
 
 		switch cmd {
 
-		case "attach" :
+		case "attach":
 			if len(s) < 2 {
 				newmessage = newmessage + "invalid command " + cmdstr + "\n"
 				break
@@ -175,7 +175,7 @@ func main() {
 				deviceinfo := new(importer.DeviceInfo)
 				deviceinfo.IpAddress = info[0] + ":" + info[1]
 				freq, err := strconv.ParseUint(info[2], 10, 32)
-				if (err != nil) {
+				if err != nil {
 					newmessage = newmessage + "invalid command " + devinfo + "\n"
 					continue
 				}
@@ -192,7 +192,7 @@ func main() {
 				ips := strings.Join(ipattached, " ")
 				newmessage = newmessage + ips + " attached\n"
 			}
-		case "delete" :
+		case "delete":
 			if len(s) < 2 {
 				newmessage = newmessage + "invalid command " + cmdstr + "\n"
 				break
@@ -210,7 +210,7 @@ func main() {
 				ips := strings.Join(devicelist.Ip, " ")
 				newmessage = newmessage + ips + " deleted\n"
 			}
-		case "period" :
+		case "period":
 			if len(s) != 2 {
 				newmessage = newmessage + "invalid command " + cmdstr + "\n"
 				break
@@ -267,7 +267,7 @@ func main() {
 				newmessage = newmessage + errStatus.Message()
 				fmt.Printf("Un/subscribe error - status code %v message %v", errStatus.Code(), errStatus.Message())
 			} else {
-				newmessage = newmessage + cmd +  " successful\n"
+				newmessage = newmessage + cmd + " successful\n"
 			}
 		case "showeventlist":
 			if len(s) != 2 {
@@ -320,30 +320,30 @@ func main() {
 			loop = false
 			newmessage = "QUIT"
 
-			case "showdevices":
-				cmd_size := len(s)
-				fmt.Print("cmd is :", cmd, cmd_size)
-				if cmd_size > 2 || cmd_size < 0 {
-					fmt.Print("error event !!")
-					newmessage = "error event !!"
-				} else {
-					err, currentlist := GetCurrentDevices()
+		case "showdevices":
+			cmd_size := len(s)
+			fmt.Print("cmd is :", cmd, cmd_size)
+			if cmd_size > 2 || cmd_size < 0 {
+				fmt.Print("error event !!")
+				newmessage = "error event !!"
+			} else {
+				err, currentlist := GetCurrentDevices()
 
-					if err != nil {
-						errStatus, _ := status.FromError(err)
-						fmt.Println(errStatus.Message())
-						fmt.Println(errStatus.Code())
-						newmessage = errStatus.Message()
-						fmt.Print("showdevices error!!")
-					} else {
-						fmt.Print("showdevices ", currentlist)
-						newmessage = strings.Join(currentlist[:], ", ")
-					}
+				if err != nil {
+					errStatus, _ := status.FromError(err)
+					fmt.Println(errStatus.Message())
+					fmt.Println(errStatus.Code())
+					newmessage = errStatus.Message()
+					fmt.Print("showdevices error!!")
+				} else {
+					fmt.Print("showdevices ", currentlist)
+					newmessage = strings.Join(currentlist[:], ", ")
 				}
+			}
 		default:
 			newmessage = newmessage + "invalid command " + cmdstr + "\n"
 		}
-			// send string back to client
+		// send string back to client
 		connS.Write([]byte(newmessage + "\n"))
 	}
 }

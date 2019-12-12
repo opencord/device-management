@@ -15,13 +15,13 @@
 package main
 
 import (
-	"github.com/opencord/device-management/proto"
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"github.com/Shopify/sarama"
-	log "github.com/sirupsen/logrus"
 	empty "github.com/golang/protobuf/ptypes/empty"
+	"github.com/opencord/device-management/proto"
+	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -47,34 +47,34 @@ var (
 
 var DataProducer sarama.AsyncProducer
 
-var redfish_resources = [...]string{"/redfish/v1/Chassis", "/redfish/v1/Systems","/redfish/v1/EthernetSwitches"}
+var redfish_resources = [...]string{"/redfish/v1/Chassis", "/redfish/v1/Systems", "/redfish/v1/EthernetSwitches"}
 var pvmount = os.Getenv("DEVICE_MANAGEMENT_PVMOUNT")
 var subscriptionListPath string
 
-type scheduler struct  {
-	getdata *time.Ticker
-	quit chan bool
+type scheduler struct {
+	getdata    *time.Ticker
+	quit       chan bool
 	getdataend chan bool
 }
 
-type device struct  {
-	Subscriptions	map[string]string	`json:"ss"`
-	Freq		uint32			`json:"freq"`
-	Datacollector	scheduler		`json:"-"`
-	Freqchan	chan uint32		`json:"-"`
-	Eventtypes	[]string		`json:"eventtypes"`
-	Datafile	*os.File		`json:"-"`
+type device struct {
+	Subscriptions map[string]string `json:"ss"`
+	Freq          uint32            `json:"freq"`
+	Datacollector scheduler         `json:"-"`
+	Freqchan      chan uint32       `json:"-"`
+	Eventtypes    []string          `json:"eventtypes"`
+	Datafile      *os.File          `json:"-"`
 }
 
 type Server struct {
-	devicemap	map[string]*device
-	gRPCserver	*grpc.Server
-	dataproducer	sarama.AsyncProducer
-	httpclient	*http.Client
+	devicemap    map[string]*device
+	gRPCserver   *grpc.Server
+	dataproducer sarama.AsyncProducer
+	httpclient   *http.Client
 }
 
 func (s *Server) ClearCurrentEventList(c context.Context, info *importer.Device) (*empty.Empty, error) {
-	fmt.Println("Received ClearCurrentEventList\n")
+	fmt.Println("Received ClearCurrentEventList")
 	ip_address := info.IpAddress
 	_, found := s.devicemap[ip_address]
 	if !found {
@@ -93,7 +93,7 @@ func (s *Server) ClearCurrentEventList(c context.Context, info *importer.Device)
 }
 
 func (s *Server) GetCurrentEventList(c context.Context, info *importer.Device) (*importer.EventList, error) {
-	fmt.Println("Received GetCurrentEventList\n")
+	fmt.Println("Received GetCurrentEventList")
 	_, found := s.devicemap[info.IpAddress]
 	if !found {
 		return nil, status.Errorf(codes.NotFound, "Device not registered")
@@ -106,9 +106,9 @@ func (s *Server) GetCurrentEventList(c context.Context, info *importer.Device) (
 }
 
 func (s *Server) GetEventList(c context.Context, info *importer.Device) (*importer.EventList, error) {
-	fmt.Println("Received GetEventList\n")
+	fmt.Println("Received GetEventList")
 	eventstobesubscribed := new(importer.EventList)
-//	eventstobesubscribed.Events = s.devicemap[info.IpAddress].Eventtypes
+	//	eventstobesubscribed.Events = s.devicemap[info.IpAddress].Eventtypes
 	eventstobesubscribed.Events = s.get_event_types(info.IpAddress)
 	if eventstobesubscribed.Events == nil {
 		return nil, status.Errorf(codes.NotFound, "No events found")
@@ -133,7 +133,7 @@ func (s *Server) SetFrequency(c context.Context, info *importer.FreqInfo) (*empt
 
 func (s *Server) SubsrcribeGivenEvents(c context.Context, subeventlist *importer.GivenEventList) (*empty.Empty, error) {
 	errstring := ""
-	fmt.Println("Received SubsrcribeEvents\n")
+	fmt.Println("Received SubsrcribeEvents")
 	//Call API to subscribe events
 	ip_address := subeventlist.EventIpAddress
 	_, found := s.devicemap[ip_address]
@@ -168,7 +168,7 @@ func (s *Server) SubsrcribeGivenEvents(c context.Context, subeventlist *importer
 
 func (s *Server) UnSubsrcribeGivenEvents(c context.Context, unsubeventlist *importer.GivenEventList) (*empty.Empty, error) {
 	errstring := ""
-	fmt.Println("Received UnSubsrcribeEvents\n")
+	fmt.Println("Received UnSubsrcribeEvents")
 	ip_address := unsubeventlist.EventIpAddress
 	_, found := s.devicemap[ip_address]
 	if !found {
@@ -246,7 +246,7 @@ func (s *Server) collect_data(ip_address string) {
 					b := []byte(str)
 					msg := &sarama.ProducerMessage{Topic: importerTopic, Value: sarama.StringEncoder(b)}
 					select {
-					case  s.dataproducer.Input() <- msg:
+					case s.dataproducer.Input() <- msg:
 						fmt.Println("Produce message")
 					default:
 					}
@@ -266,7 +266,7 @@ func (s *Server) DeleteDeviceList(c context.Context, list *importer.DeviceListBy
 	errstring := ""
 	for _, ip := range list.Ip {
 		if _, ok := s.devicemap[ip]; !ok {
-			fmt.Printf("Device not found ", ip)
+			fmt.Printf("Device not found %s\n ", ip)
 			errstring = errstring + "Device " + ip + " not found\n"
 			continue
 		}
@@ -305,10 +305,10 @@ func (s *Server) DeleteDeviceList(c context.Context, list *importer.DeviceListBy
 	return &empty.Empty{}, nil
 }
 
-func (s *Server) SendDeviceList(c context.Context,  list *importer.DeviceList) (*empty.Empty, error) {
+func (s *Server) SendDeviceList(c context.Context, list *importer.DeviceList) (*empty.Empty, error) {
 	errstring := ""
 	for _, dev := range list.Device {
-		ip_address:= dev.IpAddress
+		ip_address := dev.IpAddress
 		if _, ok := s.devicemap[dev.IpAddress]; ok {
 			fmt.Printf("Device %s already exists", ip_address)
 			errstring = errstring + "Device " + ip_address + " already exists\n"
@@ -320,11 +320,11 @@ func (s *Server) SendDeviceList(c context.Context,  list *importer.DeviceList) (
 			errstring = errstring + "Device " + ip_address + " data collection frequency out of range\n"
 			continue
 		}
-		d := device {
+		d := device{
 			Subscriptions: make(map[string]string),
-			Freq: dev.Frequency,
+			Freq:          dev.Frequency,
 			Datacollector: scheduler{
-				quit: make(chan bool),
+				quit:       make(chan bool),
 				getdataend: make(chan bool),
 			},
 			Freqchan: make(chan uint32),
@@ -362,7 +362,7 @@ func (s *Server) SendDeviceList(c context.Context,  list *importer.DeviceList) (
 }
 
 func (s *Server) GetCurrentDevices(c context.Context, e *importer.Empty) (*importer.DeviceListByIp, error) {
-	fmt.Println("In Received GetCurrentDevices\n")
+	fmt.Println("In Received GetCurrentDevices")
 
 	if len(s.devicemap) == 0 {
 		return nil, status.Errorf(codes.NotFound, "Devices not registered")
@@ -388,13 +388,13 @@ func (s *Server) startgrpcserver() error {
 	grpcport := ":50051"
 	listener, gserver, err := NewGrpcServer(grpcport)
 	if err != nil {
-		fmt.Println("Failed to create gRPC server: %v", err)
+		fmt.Println("Failed to create gRPC server: ", err)
 		return err
 	}
 	s.gRPCserver = gserver
 	importer.RegisterDeviceManagementServer(gserver, s)
 	if err := gserver.Serve(listener); err != nil {
-		fmt.Println("Failed to run gRPC server: %v", err)
+		fmt.Println("Failed to run gRPC server: ", err)
 		return err
 	}
 	return nil
@@ -523,9 +523,9 @@ func main() {
 		Timeout: 10 * time.Second,
 	}
 
-	s := Server {
-		devicemap:	make(map[string]*device),
-		httpclient:	client,
+	s := Server{
+		devicemap:  make(map[string]*device),
+		httpclient: client,
 	}
 
 	s.kafkaInit()

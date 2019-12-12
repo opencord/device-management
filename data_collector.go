@@ -15,14 +15,14 @@
 package main
 
 import (
-	"net/http"
-	"fmt"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
+	"net/http"
 )
 
 /* parse_map() parses the json structure, amap, and returns all sub-folder paths found at the 2nd level of the multiplayer structure
-*/
+ */
 func parse_map(amap map[string]interface{}, level uint, archive map[string]bool) (paths []string) {
 	level = level + 1
 	for key, val := range amap {
@@ -35,7 +35,7 @@ func parse_map(amap map[string]interface{}, level uint, archive map[string]bool)
 			paths = append(paths, p...)
 		default:
 			if level == 2 && key == "@odata.id" {
-			/* sub-folder path of a resource can be found as the value of the key '@odata.id' showing up at the 2nd level of the data read from a resource. When a path is found, it's checked against the array 'archive' to avoid duplicates. */
+				/* sub-folder path of a resource can be found as the value of the key '@odata.id' showing up at the 2nd level of the data read from a resource. When a path is found, it's checked against the array 'archive' to avoid duplicates. */
 				if _, ok := archive[val.(string)]; !ok {
 					archive[val.(string)] = true
 					paths = append(paths, val.(string))
@@ -47,7 +47,7 @@ func parse_map(amap map[string]interface{}, level uint, archive map[string]bool)
 }
 
 /* parse_array() parses any vlaue, if in the form of an array, of a key-value pair found in the json structure, and returns any paths found.
-*/
+ */
 func parse_array(anarray []interface{}, level uint, archive map[string]bool) (paths []string) {
 	for _, val := range anarray {
 		switch val.(type) {
