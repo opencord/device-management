@@ -58,7 +58,7 @@ Delete "IP 192.168.4.27" and "IP 192.168.3.34"
 									delete 192.168.4.27:8888 192.168.4.26:8888
 --------------------------------------------------------------------------------------
 Get Current List of Devices monitored					showdevices
-									Return from server: 192.168.4.26:8888,192.168.4.27:8888
+									Return from server: 192.168.4.26:8888 192.168.4.27:8888
 --------------------------------------------------------------------------------------
 UnSubscribe all events(ResourceAdded/ResourceRemoved/Alert)		unsub:192.168.4.27:8888:add:rm:alert
 =======

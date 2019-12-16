@@ -33,6 +33,8 @@ import (
 	"os/signal"
 	"path"
 	"time"
+	"strings"
+	"strconv"
 )
 
 //globals
@@ -76,9 +78,8 @@ type Server struct {
 func (s *Server) ClearCurrentEventList(c context.Context, info *importer.Device) (*empty.Empty, error) {
 	fmt.Println("Received ClearCurrentEventList")
 	ip_address := info.IpAddress
-	_, found := s.devicemap[ip_address]
-	if !found {
-		return nil, status.Errorf(codes.NotFound, "Device not registered")
+	if msg, ok := s.validate_ip(ip_address, true, true); !ok {
+		return nil, status.Errorf(codes.InvalidArgument, msg)
 	}
 	for event, _ := range s.devicemap[ip_address].Subscriptions {
 		rtn := s.remove_subscription(ip_address, event)
@@ -93,10 +94,9 @@ func (s *Server) ClearCurrentEventList(c context.Context, info *importer.Device)
 }
 
 func (s *Server) GetCurrentEventList(c context.Context, info *importer.Device) (*importer.EventList, error) {
-	fmt.Println("Received GetCurrentEventList")
-	_, found := s.devicemap[info.IpAddress]
-	if !found {
-		return nil, status.Errorf(codes.NotFound, "Device not registered")
+	fmt.Println("Received GetCurrentEventList\n")
+	if msg, ok := s.validate_ip(info.IpAddress, true, true); !ok {
+		return nil, status.Errorf(codes.InvalidArgument, msg)
 	}
 	currentevents := new(importer.EventList)
 	for event, _ := range s.devicemap[info.IpAddress].Subscriptions {
@@ -106,24 +106,26 @@ func (s *Server) GetCurrentEventList(c context.Context, info *importer.Device) (
 }
 
 func (s *Server) GetEventList(c context.Context, info *importer.Device) (*importer.EventList, error) {
-	fmt.Println("Received GetEventList")
+	fmt.Println("Received GetEventList\n")
+	if msg, ok := s.validate_ip(info.IpAddress, true, true); !ok {
+		return nil, status.Errorf(codes.InvalidArgument, msg)
+	}
 	eventstobesubscribed := new(importer.EventList)
-	//	eventstobesubscribed.Events = s.devicemap[info.IpAddress].Eventtypes
-	eventstobesubscribed.Events = s.get_event_types(info.IpAddress)
+//	eventstobesubscribed.Events = s.devicemap[info.IpAddress].Eventtypes
+	eventstobesubscribed.Events = s.devicemap[info.IpAddress].Eventtypes
 	if eventstobesubscribed.Events == nil {
-		return nil, status.Errorf(codes.NotFound, "No events found")
+		return nil, status.Errorf(codes.NotFound, "No events found\n")
 	}
 	return eventstobesubscribed, nil
 }
 
 func (s *Server) SetFrequency(c context.Context, info *importer.FreqInfo) (*empty.Empty, error) {
 	fmt.Println("Received SetFrequency")
-	_, found := s.devicemap[info.IpAddress]
-	if !found {
-		return nil, status.Errorf(codes.NotFound, "Device not registered")
+	if msg, ok := s.validate_ip(info.IpAddress, true, true); !ok {
+		return nil, status.Errorf(codes.InvalidArgument, msg)
 	}
 	if info.Frequency > 0 && info.Frequency < RF_DATA_COLLECT_THRESHOLD {
-		return nil, status.Errorf(codes.InvalidArgument, "Invalid frequency")
+		return nil, status.Errorf(codes.InvalidArgument, "Invalid interval\n")
 	}
 	s.devicemap[info.IpAddress].Freqchan <- info.Frequency
 	s.devicemap[info.IpAddress].Freq = info.Frequency
@@ -131,26 +133,38 @@ func (s *Server) SetFrequency(c context.Context, info *importer.FreqInfo) (*empt
 	return &empty.Empty{}, nil
 }
 
-func (s *Server) SubsrcribeGivenEvents(c context.Context, subeventlist *importer.GivenEventList) (*empty.Empty, error) {
+func (s *Server) SubscribeGivenEvents(c context.Context, subeventlist *importer.GivenEventList) (*empty.Empty, error) {
 	errstring := ""
 	fmt.Println("Received SubsrcribeEvents")
 	//Call API to subscribe events
 	ip_address := subeventlist.EventIpAddress
-	_, found := s.devicemap[ip_address]
-	if !found {
-		return nil, status.Errorf(codes.NotFound, "Device not registered")
+	if msg, ok := s.validate_ip(ip_address, true, true); !ok {
+		return nil, status.Errorf(codes.InvalidArgument, msg)
 	}
 	if len(subeventlist.Events) <= 0 {
-		return nil, status.Errorf(codes.InvalidArgument, "Event list is empty")
+		return nil, status.Errorf(codes.InvalidArgument, "Event list is empty\n")
 	}
 	for _, event := range subeventlist.Events {
 		if _, ok := s.devicemap[ip_address].Subscriptions[event]; !ok {
-			rtn := s.add_subscription(ip_address, event)
-			if !rtn {
-				errstring = errstring + "failed to subscribe event " + ip_address + " " + event + "\n"
+			supported := false
+			for _, e := range s.devicemap[ip_address].Eventtypes{
+				if e == event {
+					supported = true
+					rtn := s.add_subscription(ip_address, event)
+					if !rtn {
+						errstring = errstring + "failed to subscribe event " + ip_address + " " + event + "\n"
+						log.WithFields(log.Fields{
+							"Event": event,
+						}).Info("Error adding  event")
+					}
+					break
+				}
+			}
+			if supported == false {
+				errstring = errstring + "event " + event + " not supported\n"
 				log.WithFields(log.Fields{
 					"Event": event,
-				}).Info("Error adding  event")
+				}).Info("not supported")
 			}
 		} else {
 			errstring = errstring + "event " + event + " already subscribed\n"
@@ -166,17 +180,16 @@ func (s *Server) SubsrcribeGivenEvents(c context.Context, subeventlist *importer
 	return &empty.Empty{}, nil
 }
 
-func (s *Server) UnSubsrcribeGivenEvents(c context.Context, unsubeventlist *importer.GivenEventList) (*empty.Empty, error) {
+func (s *Server) UnsubscribeGivenEvents(c context.Context, unsubeventlist *importer.GivenEventList) (*empty.Empty, error) {
 	errstring := ""
 	fmt.Println("Received UnSubsrcribeEvents")
 	ip_address := unsubeventlist.EventIpAddress
-	_, found := s.devicemap[ip_address]
-	if !found {
-		return nil, status.Errorf(codes.NotFound, "Device not registered")
+	if msg, ok := s.validate_ip(ip_address, true, true); !ok {
+		return nil, status.Errorf(codes.InvalidArgument, msg)
 	}
 
 	if len(unsubeventlist.Events) <= 0 {
-		return nil, status.Errorf(codes.InvalidArgument, "Event list is empty")
+		return nil, status.Errorf(codes.InvalidArgument, "Event list is empty\n")
 	}
 	//Call API to unsubscribe events
 	for _, event := range unsubeventlist.Events {
@@ -309,14 +322,12 @@ func (s *Server) SendDeviceList(c context.Context, list *importer.DeviceList) (*
 	errstring := ""
 	for _, dev := range list.Device {
 		ip_address := dev.IpAddress
-		if _, ok := s.devicemap[dev.IpAddress]; ok {
-			fmt.Printf("Device %s already exists", ip_address)
-			errstring = errstring + "Device " + ip_address + " already exists\n"
+		if msg, ok := s.validate_ip(ip_address, false, false); !ok {
+			errstring = errstring + msg
 			continue
 		}
-
 		if dev.Frequency > 0 && dev.Frequency < RF_DATA_COLLECT_THRESHOLD {
-			fmt.Printf("Device %s data collection frequency %d out of range", ip_address, dev.Frequency)
+			fmt.Printf("Device %s data collection interval %d out of range", ip_address, dev.Frequency)
 			errstring = errstring + "Device " + ip_address + " data collection frequency out of range\n"
 			continue
 		}
@@ -365,7 +376,7 @@ func (s *Server) GetCurrentDevices(c context.Context, e *importer.Empty) (*impor
 	fmt.Println("In Received GetCurrentDevices")
 
 	if len(s.devicemap) == 0 {
-		return nil, status.Errorf(codes.NotFound, "Devices not registered")
+		return nil, status.Errorf(codes.NotFound, "No Device found\n")
 	}
 	dl := new(importer.DeviceListByIp)
 	for k, v := range s.devicemap {
@@ -443,6 +454,60 @@ func (s *Server) runServer() {
 	fmt.Println("Starting HTTP Server")
 	http.HandleFunc("/", s.handle_events)
 	http.ListenAndServeTLS(":8080", "https-server.crt", "https-server.key", nil)
+}
+
+/* validate_ip() verifies if the ip and port are valid and already registered then return the truth value of the desired state specified by the following 2 switches,
+   want_registered: 'true' if the fact of an ip is registered is the desired state
+   include_port: 'true' further checks if <ip>:<port#> does exist in the devicemap in case an ip is found registered 
+*/
+func (s *Server) validate_ip(ip_address string, want_registered bool, include_port bool) (msg string, ok bool) {
+	msg = ""
+	ok = false
+	if !strings.Contains(ip_address, ":") {
+		fmt.Printf("Incorrect IP address %s, expected format <ip>:<port #>", ip_address)
+		msg = "Incorrect IP address format (<ip>:<port #>)\n"
+		return
+	}
+	splits := strings.Split(ip_address, ":")
+	ip, port := splits[0], splits[1]
+	if net.ParseIP(ip) == nil {
+		fmt.Printf("Invalid IP address %s", ip)
+		msg = "Invalid IP address " + ip + "\n"
+		return
+	}
+	if _, err := strconv.Atoi(port); err != nil {
+		fmt.Printf("Port # %s is not an integer", port)
+		msg = "Port # " + port + " needs to be an integer\n"
+		return
+	}
+	for k := range s.devicemap {
+		if strings.HasPrefix(k, ip) {
+			if !want_registered {
+				fmt.Printf("Device ip %s already registered", ip)
+				msg = "Device ip " + ip + " already registered\n"
+				return
+			} else if include_port {
+				if _, found := s.devicemap[ip_address]; found {
+					ok = true
+					return
+				} else {
+					fmt.Printf("Device %s not registered", ip_address)
+					msg = "Device " + ip_address + " not registered\n"
+					return
+				}
+			} else {
+				ok = true
+				return
+			}
+		}
+	}
+	if want_registered {
+		fmt.Printf("Device %s not registered", ip_address)
+		msg = "Device " + ip_address + " not registered\n"
+		return
+	}
+	ok = true
+	return
 }
 
 func (s *Server) init_data_persistence() {

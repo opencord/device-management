@@ -49,9 +49,9 @@ service device_management {
 
     rpc GetEventList(Device) returns (EventList) {}
 
-    rpc SubsrcribeGivenEvents(GivenEventList)  returns (google.protobuf.Empty) {}
+    rpc SubscribeGivenEvents(GivenEventList)  returns (google.protobuf.Empty) {}
 
-    rpc UnSubsrcribeGivenEvents(GivenEventList) returns (google.protobuf.Empty) {}
+    rpc UnsubscribeGivenEvents(GivenEventList) returns (google.protobuf.Empty) {}
 
     rpc GetCurrentEventList(Device) returns (EventList) {}
 

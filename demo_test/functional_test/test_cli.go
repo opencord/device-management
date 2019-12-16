@@ -23,22 +23,13 @@ import "strings"
 func main() {
 	// connect to this socket
 	var message string = ""
+	cmdstr := strings.Join(os.Args[1:], " ")
 	conn, _ := net.Dial("tcp", "127.0.0.1:9999")
-	reader := bufio.NewReader(os.Stdin)
-	for {
-		// read in input from stdin
-		fmt.Print("CMD to send : ")
-		text, _ := reader.ReadString(';')
-		text = strings.TrimSuffix(text, ";")
-		// send to socket
-		fmt.Fprintf(conn, text+"\n")
+	// send to socket
+	fmt.Fprintf(conn, cmdstr + "\n")
 
-		// listen for reply
-		message, _ = bufio.NewReader(conn).ReadString('\n')
-		fmt.Print("Return from server: " + message)
-
-		if message == "QUIT\n" {
-			break
-		}
-	}
+	// listen for reply
+	message, _ = bufio.NewReader(conn).ReadString(';')
+	message = strings.TrimSuffix(message, ";")
+	fmt.Print(message)
 }

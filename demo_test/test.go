@@ -32,6 +32,7 @@ import (
 	"os/signal"
 	"strconv"
 	"strings"
+	"sort"
 )
 
 var REDFISH_ROOT = "/redfish/v1"
@@ -133,11 +134,6 @@ func main() {
 	}
 	defer ln.Close()
 
-	connS, err := ln.Accept()
-	if err != nil {
-		fmt.Println("Accept error")
-		log.Fatalf("Accept error: %v", err)
-	}
 	conn, err = grpc.Dial(default_address, grpc.WithInsecure())
 	if err != nil {
 		fmt.Println("could not connect")
@@ -151,6 +147,11 @@ func main() {
 	loop := true
 
 	for loop == true {
+		connS, err := ln.Accept()
+		if err != nil {
+			fmt.Println("Accept error")
+			log.Fatal("Accept error: %v", err)
+		}
 		cmdstr, _ := bufio.NewReader(connS).ReadString('\n')
 		cmdstr = strings.TrimSuffix(cmdstr, "\n")
 		s := strings.Split(cmdstr, " ")
@@ -161,7 +162,7 @@ func main() {
 
 		case "attach":
 			if len(s) < 2 {
-				newmessage = newmessage + "invalid command " + cmdstr + "\n"
+				newmessage = newmessage + "invalid command length" + cmdstr + "\n"
 				break
 			}
 			var devicelist importer.DeviceList
@@ -183,12 +184,16 @@ func main() {
 				devicelist.Device = append(devicelist.Device, deviceinfo)
 				ipattached = append(ipattached, deviceinfo.IpAddress)
 			}
+			if len(devicelist.Device) == 0 {
+				break
+			}
 			_, err := cc.SendDeviceList(ctx, &devicelist)
 			if err != nil {
 				errStatus, _ := status.FromError(err)
-				newmessage = newmessage + errStatus.Message() + "\n"
+				newmessage = newmessage + errStatus.Message()
 				fmt.Printf("attach error - status code %v message %v", errStatus.Code(), errStatus.Message())
 			} else {
+				sort.Strings(ipattached)
 				ips := strings.Join(ipattached, " ")
 				newmessage = newmessage + ips + " attached\n"
 			}
@@ -199,14 +204,23 @@ func main() {
 			}
 			var devicelist importer.DeviceListByIp
 			for _, ip := range s[1:] {
+				addr := strings.Split(ip, ":")
+				if len(addr) != 2 {
+					newmessage = newmessage + "invalid address " + ip + "\n"
+					continue
+				}
 				devicelist.Ip = append(devicelist.Ip, ip)
+			}
+			if len(devicelist.Ip) == 0 {
+				break
 			}
 			_, err := cc.DeleteDeviceList(ctx, &devicelist)
 			if err != nil {
 				errStatus, _ := status.FromError(err)
-				newmessage = newmessage + errStatus.Message() + "\n"
+				newmessage = newmessage + errStatus.Message()
 				fmt.Printf("delete error - status code %v message %v", errStatus.Code(), errStatus.Message())
 			} else {
+				sort.Strings(devicelist.Ip)
 				ips := strings.Join(devicelist.Ip, " ")
 				newmessage = newmessage + ips + " deleted\n"
 			}
@@ -256,11 +270,14 @@ func main() {
 					giveneventlist.Events = append(giveneventlist.Events, value)
 				}
 			}
+			if len(giveneventlist.Events) == 0 {
+				newmessage = newmessage + "No valid event was given\n"
+			}
 			var err error
 			if cmd == "sub" {
-				_, err = cc.SubsrcribeGivenEvents(ctx, giveneventlist)
+				_, err = cc.SubscribeGivenEvents(ctx, giveneventlist)
 			} else {
-				_, err = cc.UnSubsrcribeGivenEvents(ctx, giveneventlist)
+				_, err = cc.UnsubscribeGivenEvents(ctx, giveneventlist)
 			}
 			if err != nil {
 				errStatus, _ := status.FromError(err)
@@ -271,7 +288,7 @@ func main() {
 			}
 		case "showeventlist":
 			if len(s) != 2 {
-				newmessage = newmessage + "invalid command " + s[1] + "\n"
+				newmessage = newmessage + "invalid command " + cmdstr + "\n"
 				break
 			}
 			currentdeviceinfo := new(importer.Device)
@@ -283,7 +300,9 @@ func main() {
 				fmt.Printf("showeventlist error - status code %v message %v", errStatus.Code(), errStatus.Message())
 			} else {
 				fmt.Print("showeventlist ", ret_msg.Events)
-				newmessage = strings.Join(ret_msg.Events[:], ",")
+				sort.Strings(ret_msg.Events[:])
+				newmessage = strings.Join(ret_msg.Events[:], " ")
+				newmessage = newmessage + "\n"
 			}
 		case "showdeviceeventlist":
 			if len(s) != 2 {
@@ -299,7 +318,9 @@ func main() {
 				newmessage = newmessage + errStatus.Message()
 			} else {
 				fmt.Print("showdeviceeventlist ", ret_msg.Events)
-				newmessage = strings.Join(ret_msg.Events[:], ",")
+				sort.Strings(ret_msg.Events[:])
+				newmessage = strings.Join(ret_msg.Events[:], " ")
+				newmessage = newmessage + "\n"
 			}
 		case "cleardeviceeventlist":
 			if len(s) != 2 {
@@ -337,13 +358,15 @@ func main() {
 					fmt.Print("showdevices error!!")
 				} else {
 					fmt.Print("showdevices ", currentlist)
-					newmessage = strings.Join(currentlist[:], ", ")
+					sort.Strings(currentlist[:])
+					newmessage = strings.Join(currentlist[:], " ")
+					newmessage = newmessage + "\n"
 				}
 			}
 		default:
 			newmessage = newmessage + "invalid command " + cmdstr + "\n"
 		}
-		// send string back to client
-		connS.Write([]byte(newmessage + "\n"))
+			// send string back to client
+		connS.Write([]byte(newmessage + ";"))
 	}
 }
