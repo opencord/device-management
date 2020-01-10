@@ -18,6 +18,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	logrus "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -36,6 +37,10 @@ func (s *Server) add_subscription(ip string, event string) (rtn bool) {
 	subscrpt_info["Destination"] = RF_DEFAULT_PROTOCOL + destip
 	subscrpt_info["EventTypes"] = []string{event}
 	sRequestJson, err := json.Marshal(subscrpt_info)
+	if err != nil {
+		logrus.Errorf("Error JasonMarshal %s", err)
+		return
+	}
 	uri := RF_DEFAULT_PROTOCOL + ip + RF_SUBSCRIPTION
 	client := s.httpclient
 	resp, err := client.Post(uri, CONTENT_TYPE, bytes.NewBuffer(sRequestJson))
@@ -43,16 +48,20 @@ func (s *Server) add_subscription(ip string, event string) (rtn bool) {
 		defer resp.Body.Close()
 	}
 	if err != nil {
-		fmt.Println(err)
+		logrus.Errorf("client post error %s", err)
 		return
 	}
 
 	if resp.StatusCode != 201 {
 		result := make(map[string]interface{})
-		json.NewDecoder(resp.Body).Decode(&result)
-		fmt.Println(result)
+		dec := json.NewDecoder(resp.Body)
+		if err := dec.Decode(&result); err != nil {
+			logrus.Errorf("ERROR while adding event subscription:%s " + err.Error())
+			return
+		}
+		logrus.Infof("Result Decode %s", result)
 		fmt.Println(result["data"])
-		fmt.Println("Add ", event, " subscription failed. HTTP response status: ", resp.Status)
+		logrus.Errorf("Add %s subscription failed. HTTP response status:%s ", event, resp.Status)
 		return
 	}
 	rtn = true
@@ -61,7 +70,7 @@ func (s *Server) add_subscription(ip string, event string) (rtn bool) {
 	match := re.FindStringSubmatch(loc[0])
 	s.devicemap[ip].Subscriptions[event] = match[1]
 
-	fmt.Println("Subscription", event, "id", match[1], "was successfully added")
+	logrus.Infof("Subscription %s id %s was successfully added", event, match[1])
 	return
 }
 
@@ -74,48 +83,52 @@ func (s *Server) remove_subscription(ip string, event string) bool {
 		defer resp.Body.Close()
 	}
 	if err != nil {
-		fmt.Println(err)
+		logrus.Errorf("Error DefaultClient.Do %s", err)
 		return false
 	}
 
 	if code := resp.StatusCode; code < 200 && code > 299 {
 		result := make(map[string]interface{})
-		json.NewDecoder(resp.Body).Decode(&result)
-		fmt.Println(result)
+		dec := json.NewDecoder(resp.Body)
+		if err := dec.Decode(&result); err != nil {
+			logrus.Errorf("ERROR while removing event subscription: %s ", err.Error())
+			return false
+		}
+		logrus.Infof("Result %s", result)
 		fmt.Println(result["data"])
-		fmt.Println("Remove subscription failed. HTTP response status:", resp.Status)
+		logrus.Errorf("Remove subscription failed. HTTP response status:%s", resp.Status)
 		return false
 	}
 	delete(s.devicemap[ip].Subscriptions, event)
 
-	fmt.Println("Subscription id", id, "was successfully removed")
+	logrus.Infof("Subscription id %s was successfully removed", id)
 	return true
 }
 
 func (s *Server) get_event_types(ip string) (eventtypes []string) {
 	resp, err := http.Get(RF_DEFAULT_PROTOCOL + ip + RF_EVENTSERVICE)
-	fmt.Println("get_event_types")
+	logrus.Info("get_event_types")
 	if resp != nil {
 		defer resp.Body.Close()
 	}
 	if err != nil {
-		fmt.Println(err)
+		logrus.Errorf("http get Error %s", err)
 		return
 	}
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Println(err)
+		logrus.Errorf("Read error %s", err)
 		return
 	}
 
 	m := map[string]interface{}{}
 	err = json.Unmarshal([]byte(body), &m)
 	if err != nil {
-		fmt.Println(err)
+		logrus.Errorf("ErrorUnmarshal %s", err)
 		return
 	}
 	e := m["EventTypesForSubscription"].([]interface{})
-	fmt.Printf("supported event types %v\n", e)
+	logrus.Infof("supported event types %v\n", e)
 	for _, val := range e {
 		eventtypes = append(eventtypes, val.(string))
 	}

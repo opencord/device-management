@@ -24,7 +24,7 @@ WORKDIR /app
 ENV GO111MODULE=on
 ENV PROTOC_VERSION 3.6.1
 ENV PROTOC_SHA256SUM 6003de742ea3fcf703cfec1cd4a3380fd143081a2eb0e559065563496af27807
-RUN apt-get update && apt-get install --no-install-recommends -y \
+RUN apt-get update && apt-get install --no-install-recommends -y --allow-downgrades \
 	git=1:2.20.1-2 \
 	gcc=4:8.3.0-1 \
 	curl=7.64.0-4 \

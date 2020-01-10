@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"github.com/Shopify/sarama"
 	"github.com/opencord/device-management/demo_test/proto"
-	log "github.com/sirupsen/logrus"
+	logrus "github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/status"
@@ -30,13 +30,11 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
+	"sort"
 	"strconv"
 	"strings"
-	"sort"
 )
 
-var REDFISH_ROOT = "/redfish/v1"
-var CONTENT_TYPE = "application/json"
 var EVENTS_MAP = map[string]string{
 	"add":    "ResourceAdded",
 	"rm":     "ResourceRemoved",
@@ -52,7 +50,7 @@ var ctx context.Context
 var conn *grpc.ClientConn
 
 func GetCurrentDevices() (error, []string) {
-	fmt.Println("Testing GetCurrentDevices")
+	logrus.Info("Testing GetCurrentDevices")
 	empty := new(importer.Empty)
 	var ret_msg *importer.DeviceListByIp
 	ret_msg, err := cc.GetCurrentDevices(ctx, empty)
@@ -64,17 +62,17 @@ func GetCurrentDevices() (error, []string) {
 }
 
 func init() {
-	Formatter := new(log.TextFormatter)
+	Formatter := new(logrus.TextFormatter)
 	Formatter.TimestampFormat = "02-01-2006 15:04:05"
 	Formatter.FullTimestamp = true
-	log.SetFormatter(Formatter)
+	logrus.SetFormatter(Formatter)
 }
 
 func topicListener(topic *string, master sarama.Consumer) {
-	log.Info("Starting topicListener for ", *topic)
+	logrus.Info("Starting topicListener for ", *topic)
 	consumer, err := master.ConsumePartition(*topic, 0, sarama.OffsetOldest)
 	if err != nil {
-		log.Errorf("topicListener panic, topic=[%s]: %s", *topic, err.Error())
+		logrus.Errorf("topicListener panic, topic=[%s]: %s", *topic, err.Error())
 		os.Exit(1)
 	}
 	signals := make(chan os.Signal, 1)
@@ -84,11 +82,11 @@ func topicListener(topic *string, master sarama.Consumer) {
 		for {
 			select {
 			case err := <-consumer.Errors():
-				log.Errorf("Consumer error: %s", err.Err)
+				logrus.Errorf("Consumer error: %s", err.Err)
 			case msg := <-consumer.Messages():
-				log.Infof("Got message on topic=[%s]: %s", *topic, string(msg.Value))
+				logrus.Infof("Got message on topic=[%s]: %s", *topic, string(msg.Value))
 			case <-signals:
-				log.Warn("Interrupt is detected")
+				logrus.Warn("Interrupt is detected")
 				os.Exit(1)
 			}
 		}
@@ -103,14 +101,14 @@ func kafkainit() {
 	cmd.Stdout = &out
 	err := cmd.Run()
 	if err != nil {
-		log.Info(err)
+		logrus.Info(err)
 		os.Exit(1)
 	}
 
 	kafkaIP = out.String()
 	kafkaIP = strings.TrimSuffix(kafkaIP, "\n")
 	kafkaIP = kafkaIP + ":9092"
-	fmt.Println("IP address of kafka-cord-0:", kafkaIP)
+	logrus.Infof("IP address of kafka-cord-0:%s", kafkaIP)
 	config := sarama.NewConfig()
 	config.Consumer.Return.Errors = true
 	master, err := sarama.NewConsumer([]string{kafkaIP}, config)
@@ -123,21 +121,20 @@ func kafkainit() {
 }
 func main() {
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
-	fmt.Println("Launching server...")
-	log.Info("kafkaInit starting")
+	logrus.Info("Launching server...")
+	logrus.Info("kafkaInit starting")
 	kafkainit()
 
 	ln, err := net.Listen("tcp", ":9999")
 	if err != nil {
 		fmt.Println("could not listen")
-		log.Fatalf("did not listen: %v", err)
+		logrus.Fatalf("did not listen: %v", err)
 	}
 	defer ln.Close()
 
 	conn, err = grpc.Dial(default_address, grpc.WithInsecure())
 	if err != nil {
-		fmt.Println("could not connect")
-		log.Fatalf("did not connect: %v", err)
+		logrus.Fatalf("did not connect: %v", err)
 	}
 	defer conn.Close()
 
@@ -146,11 +143,10 @@ func main() {
 
 	loop := true
 
-	for loop == true {
+	for loop {
 		connS, err := ln.Accept()
 		if err != nil {
-			fmt.Println("Accept error")
-			log.Fatal("Accept error: %v", err)
+			logrus.Fatalf("Accept error: %v", err)
 		}
 		cmdstr, _ := bufio.NewReader(connS).ReadString('\n')
 		cmdstr = strings.TrimSuffix(cmdstr, "\n")
@@ -191,7 +187,7 @@ func main() {
 			if err != nil {
 				errStatus, _ := status.FromError(err)
 				newmessage = newmessage + errStatus.Message()
-				fmt.Printf("attach error - status code %v message %v", errStatus.Code(), errStatus.Message())
+				logrus.Errorf("attach error - status code %v message %v", errStatus.Code(), errStatus.Message())
 			} else {
 				sort.Strings(ipattached)
 				ips := strings.Join(ipattached, " ")
@@ -218,7 +214,7 @@ func main() {
 			if err != nil {
 				errStatus, _ := status.FromError(err)
 				newmessage = newmessage + errStatus.Message()
-				fmt.Printf("delete error - status code %v message %v", errStatus.Code(), errStatus.Message())
+				logrus.Errorf("delete error - status code %v message %v", errStatus.Code(), errStatus.Message())
 			} else {
 				sort.Strings(devicelist.Ip)
 				ips := strings.Join(devicelist.Ip, " ")
@@ -238,7 +234,7 @@ func main() {
 			pv := args[2]
 			u, err := strconv.ParseUint(pv, 10, 64)
 			if err != nil {
-				fmt.Print("ParseUint error!!\n")
+				logrus.Error("ParseUint error!!\n")
 			} else {
 				freqinfo := new(importer.FreqInfo)
 				freqinfo.Frequency = uint32(u)
@@ -248,7 +244,7 @@ func main() {
 				if err != nil {
 					errStatus, _ := status.FromError(err)
 					newmessage = newmessage + errStatus.Message()
-					fmt.Printf("period error - status code %v message %v", errStatus.Code(), errStatus.Message())
+					logrus.Errorf("period error - status code %v message %v", errStatus.Code(), errStatus.Message())
 				} else {
 					newmessage = newmessage + "data collection interval configured to " + pv + " seconds\n"
 				}
@@ -282,7 +278,7 @@ func main() {
 			if err != nil {
 				errStatus, _ := status.FromError(err)
 				newmessage = newmessage + errStatus.Message()
-				fmt.Printf("Un/subscribe error - status code %v message %v", errStatus.Code(), errStatus.Message())
+				logrus.Errorf("Un/subscribe error - status code %v message %v", errStatus.Code(), errStatus.Message())
 			} else {
 				newmessage = newmessage + cmd + " successful\n"
 			}
@@ -297,7 +293,7 @@ func main() {
 			if err != nil {
 				errStatus, _ := status.FromError(err)
 				newmessage = errStatus.Message()
-				fmt.Printf("showeventlist error - status code %v message %v", errStatus.Code(), errStatus.Message())
+				logrus.Errorf("showeventlist error - status code %v message %v", errStatus.Code(), errStatus.Message())
 			} else {
 				fmt.Print("showeventlist ", ret_msg.Events)
 				sort.Strings(ret_msg.Events[:])
@@ -314,7 +310,7 @@ func main() {
 			ret_msg, err := cc.GetCurrentEventList(ctx, currentdeviceinfo)
 			if err != nil {
 				errStatus, _ := status.FromError(err)
-				fmt.Printf("showdeviceeventlist error - status code %v message %v", errStatus.Code(), errStatus.Message())
+				logrus.Errorf("showdeviceeventlist error - status code %v message %v", errStatus.Code(), errStatus.Message())
 				newmessage = newmessage + errStatus.Message()
 			} else {
 				fmt.Print("showdeviceeventlist ", ret_msg.Events)
@@ -333,7 +329,7 @@ func main() {
 			if err != nil {
 				errStatus, _ := status.FromError(err)
 				newmessage = newmessage + errStatus.Message()
-				fmt.Printf("cleardeviceeventlist error - status code %v message %v", errStatus.Code(), errStatus.Message())
+				logrus.Errorf("cleardeviceeventlist error - status code %v message %v", errStatus.Code(), errStatus.Message())
 			} else {
 				newmessage = newmessage + currentdeviceinfo.IpAddress + " events cleared\n"
 			}
@@ -343,17 +339,16 @@ func main() {
 
 		case "showdevices":
 			cmd_size := len(s)
-			fmt.Print("cmd is :", cmd, cmd_size)
+			logrus.Infof("cmd is : %s cmd_size: %d", cmd, cmd_size)
 			if cmd_size > 2 || cmd_size < 0 {
-				fmt.Print("error event !!")
+				logrus.Error("error event showdevices !!")
 				newmessage = "error event !!"
 			} else {
 				err, currentlist := GetCurrentDevices()
 
 				if err != nil {
 					errStatus, _ := status.FromError(err)
-					fmt.Println(errStatus.Message())
-					fmt.Println(errStatus.Code())
+					logrus.Errorf("GetCurrentDevice error: %s Status code: %d", errStatus.Message(), errStatus.Code())
 					newmessage = errStatus.Message()
 					fmt.Print("showdevices error!!")
 				} else {
@@ -366,7 +361,11 @@ func main() {
 		default:
 			newmessage = newmessage + "invalid command " + cmdstr + "\n"
 		}
-			// send string back to client
-		connS.Write([]byte(newmessage + ";"))
+		// send string back to client
+		n, err := connS.Write([]byte(newmessage + ";"))
+		if err != nil {
+			logrus.Errorf("err writing to client:%s, n:%d", err, n)
+			return
+		}
 	}
 }

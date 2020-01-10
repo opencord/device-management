@@ -16,7 +16,7 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
+	logrus "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
 )
@@ -69,12 +69,12 @@ func read_resource(ip string, resource string, archive map[string]bool) (data []
 		defer resp.Body.Close()
 	}
 	if err != nil {
-		fmt.Println(err)
+		logrus.Errorf("Error http get %s", err)
 		return
 	}
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Println(err)
+		logrus.Errorf("Error Read %s", err)
 		return
 	}
 
@@ -83,7 +83,7 @@ func read_resource(ip string, resource string, archive map[string]bool) (data []
 	m := map[string]interface{}{}
 	err = json.Unmarshal([]byte(body), &m)
 	if err != nil {
-		fmt.Println(err)
+		logrus.Errorf("Error Unmarshal %s", err)
 		return
 	}
 

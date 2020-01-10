@@ -98,7 +98,7 @@ endif
 	fi
 	@echo "Style check OK"
 
-lint-sanity:
+lint-sanity:proto/importer.pb.go
 	@echo "Running sanity check..."
 	@go vet -mod=vendor ./...
 	@echo "Sanity check OK"

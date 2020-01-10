@@ -22,7 +22,6 @@ import "strings"
 
 func main() {
 	// connect to this socket
-	var message string = ""
 	conn, _ := net.Dial("tcp", "127.0.0.1:9999")
 	reader := bufio.NewReader(os.Stdin)
 	for {
@@ -34,7 +33,7 @@ func main() {
 		fmt.Fprintf(conn, text+"\n")
 
 		// listen for reply
-		message, _ = bufio.NewReader(conn).ReadString('\n')
+		message, _ := bufio.NewReader(conn).ReadString('\n')
 		fmt.Print("Return from server: " + message)
 
 		if message == "QUIT\n" {

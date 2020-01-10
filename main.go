@@ -21,7 +21,7 @@ import (
 	"github.com/Shopify/sarama"
 	empty "github.com/golang/protobuf/ptypes/empty"
 	"github.com/opencord/device-management/proto"
-	log "github.com/sirupsen/logrus"
+	logrus "github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -32,9 +32,9 @@ import (
 	"os"
 	"os/signal"
 	"path"
-	"time"
-	"strings"
 	"strconv"
+	"strings"
+	"time"
 )
 
 //globals
@@ -46,8 +46,6 @@ const CONTENT_TYPE = "application/json"
 var (
 	importerTopic = "importer"
 )
-
-var DataProducer sarama.AsyncProducer
 
 var redfish_resources = [...]string{"/redfish/v1/Chassis", "/redfish/v1/Systems", "/redfish/v1/EthernetSwitches"}
 var pvmount = os.Getenv("DEVICE_MANAGEMENT_PVMOUNT")
@@ -76,15 +74,15 @@ type Server struct {
 }
 
 func (s *Server) ClearCurrentEventList(c context.Context, info *importer.Device) (*empty.Empty, error) {
-	fmt.Println("Received ClearCurrentEventList")
+	logrus.Info("Received ClearCurrentEventList")
 	ip_address := info.IpAddress
 	if msg, ok := s.validate_ip(ip_address, true, true); !ok {
 		return nil, status.Errorf(codes.InvalidArgument, msg)
 	}
-	for event, _ := range s.devicemap[ip_address].Subscriptions {
+	for event := range s.devicemap[ip_address].Subscriptions {
 		rtn := s.remove_subscription(ip_address, event)
 		if !rtn {
-			log.WithFields(log.Fields{
+			logrus.WithFields(logrus.Fields{
 				"Event": event,
 			}).Info("Error removing event")
 		}
@@ -94,24 +92,23 @@ func (s *Server) ClearCurrentEventList(c context.Context, info *importer.Device)
 }
 
 func (s *Server) GetCurrentEventList(c context.Context, info *importer.Device) (*importer.EventList, error) {
-	fmt.Println("Received GetCurrentEventList\n")
+	logrus.Info("Received GetCurrentEventList")
 	if msg, ok := s.validate_ip(info.IpAddress, true, true); !ok {
 		return nil, status.Errorf(codes.InvalidArgument, msg)
 	}
 	currentevents := new(importer.EventList)
-	for event, _ := range s.devicemap[info.IpAddress].Subscriptions {
+	for event := range s.devicemap[info.IpAddress].Subscriptions {
 		currentevents.Events = append(currentevents.Events, event)
 	}
 	return currentevents, nil
 }
 
 func (s *Server) GetEventList(c context.Context, info *importer.Device) (*importer.EventList, error) {
-	fmt.Println("Received GetEventList\n")
+	logrus.Info("Received GetEventList")
 	if msg, ok := s.validate_ip(info.IpAddress, true, true); !ok {
 		return nil, status.Errorf(codes.InvalidArgument, msg)
 	}
 	eventstobesubscribed := new(importer.EventList)
-//	eventstobesubscribed.Events = s.devicemap[info.IpAddress].Eventtypes
 	eventstobesubscribed.Events = s.devicemap[info.IpAddress].Eventtypes
 	if eventstobesubscribed.Events == nil {
 		return nil, status.Errorf(codes.NotFound, "No events found\n")
@@ -120,7 +117,7 @@ func (s *Server) GetEventList(c context.Context, info *importer.Device) (*import
 }
 
 func (s *Server) SetFrequency(c context.Context, info *importer.FreqInfo) (*empty.Empty, error) {
-	fmt.Println("Received SetFrequency")
+	logrus.Info("Received SetFrequency")
 	if msg, ok := s.validate_ip(info.IpAddress, true, true); !ok {
 		return nil, status.Errorf(codes.InvalidArgument, msg)
 	}
@@ -135,7 +132,7 @@ func (s *Server) SetFrequency(c context.Context, info *importer.FreqInfo) (*empt
 
 func (s *Server) SubscribeGivenEvents(c context.Context, subeventlist *importer.GivenEventList) (*empty.Empty, error) {
 	errstring := ""
-	fmt.Println("Received SubsrcribeEvents")
+	logrus.Info("Received SubsrcribeEvents")
 	//Call API to subscribe events
 	ip_address := subeventlist.EventIpAddress
 	if msg, ok := s.validate_ip(ip_address, true, true); !ok {
@@ -147,28 +144,28 @@ func (s *Server) SubscribeGivenEvents(c context.Context, subeventlist *importer.
 	for _, event := range subeventlist.Events {
 		if _, ok := s.devicemap[ip_address].Subscriptions[event]; !ok {
 			supported := false
-			for _, e := range s.devicemap[ip_address].Eventtypes{
+			for _, e := range s.devicemap[ip_address].Eventtypes {
 				if e == event {
 					supported = true
 					rtn := s.add_subscription(ip_address, event)
 					if !rtn {
 						errstring = errstring + "failed to subscribe event " + ip_address + " " + event + "\n"
-						log.WithFields(log.Fields{
+						logrus.WithFields(logrus.Fields{
 							"Event": event,
 						}).Info("Error adding  event")
 					}
 					break
 				}
 			}
-			if supported == false {
+			if !supported {
 				errstring = errstring + "event " + event + " not supported\n"
-				log.WithFields(log.Fields{
+				logrus.WithFields(logrus.Fields{
 					"Event": event,
 				}).Info("not supported")
 			}
 		} else {
 			errstring = errstring + "event " + event + " already subscribed\n"
-			log.WithFields(log.Fields{
+			logrus.WithFields(logrus.Fields{
 				"Event": event,
 			}).Info("Already Subscribed")
 		}
@@ -182,7 +179,7 @@ func (s *Server) SubscribeGivenEvents(c context.Context, subeventlist *importer.
 
 func (s *Server) UnsubscribeGivenEvents(c context.Context, unsubeventlist *importer.GivenEventList) (*empty.Empty, error) {
 	errstring := ""
-	fmt.Println("Received UnSubsrcribeEvents")
+	logrus.Info("Received UnSubsrcribeEvents")
 	ip_address := unsubeventlist.EventIpAddress
 	if msg, ok := s.validate_ip(ip_address, true, true); !ok {
 		return nil, status.Errorf(codes.InvalidArgument, msg)
@@ -197,13 +194,13 @@ func (s *Server) UnsubscribeGivenEvents(c context.Context, unsubeventlist *impor
 			rtn := s.remove_subscription(ip_address, event)
 			if !rtn {
 				errstring = errstring + "failed to unsubscribe event " + ip_address + " " + event + "\n"
-				log.WithFields(log.Fields{
+				logrus.WithFields(logrus.Fields{
 					"Event": event,
 				}).Info("Error removing event")
 			}
 		} else {
 			errstring = errstring + "event " + event + " not found\n"
-			log.WithFields(log.Fields{
+			logrus.WithFields(logrus.Fields{
 				"Event": event,
 			}).Info("was not Subscribed")
 		}
@@ -221,18 +218,27 @@ func (s *Server) update_data_file(ip_address string) {
 	if f != nil {
 		b, err := json.Marshal(s.devicemap[ip_address])
 		if err != nil {
-			fmt.Println(err)
+			logrus.Errorf("Update_data_file %s", err)
 		} else {
-			f.Truncate(0)
-			f.Seek(0, 0)
+			err := f.Truncate(0)
+			if err != nil {
+				logrus.Errorf("err Trunate %s", err)
+				return
+			}
+			pos, err := f.Seek(0, 0)
+			if err != nil {
+				logrus.Errorf("err Seek %s", err)
+				return
+			}
+			fmt.Println("moved back to", pos)
 			n, err := f.Write(b)
 			if err != nil {
-				fmt.Println("err wrote", n, "bytes")
-				fmt.Println(err)
+				logrus.Errorf("err wrote %d bytes", n)
+				logrus.Errorf("write error to file %s", err)
 			}
 		}
 	} else {
-		fmt.Println("file handle is nil", ip_address)
+		logrus.Errorf("file handle is nil %s", ip_address)
 	}
 }
 
@@ -249,7 +255,7 @@ func (s *Server) collect_data(ip_address string) {
 				s.devicemap[ip_address].Datacollector.getdata = ticker
 			}
 		case err := <-s.dataproducer.Errors():
-			fmt.Println("Failed to produce message:", err)
+			logrus.Errorf("Failed to produce message:%s", err)
 		case <-ticker.C:
 			for _, resource := range redfish_resources {
 				data := s.get_status(ip_address, resource)
@@ -260,14 +266,14 @@ func (s *Server) collect_data(ip_address string) {
 					msg := &sarama.ProducerMessage{Topic: importerTopic, Value: sarama.StringEncoder(b)}
 					select {
 					case s.dataproducer.Input() <- msg:
-						fmt.Println("Produce message")
+						logrus.Info("Produce message")
 					default:
 					}
 				}
 			}
 		case <-donechan:
 			ticker.Stop()
-			fmt.Println("getdata ticker stopped")
+			logrus.Info("getdata ticker stopped")
 			s.devicemap[ip_address].Datacollector.getdataend <- true
 			return
 		}
@@ -275,39 +281,39 @@ func (s *Server) collect_data(ip_address string) {
 }
 
 func (s *Server) DeleteDeviceList(c context.Context, list *importer.DeviceListByIp) (*empty.Empty, error) {
-	fmt.Println("DeleteDeviceList received")
+	logrus.Info("DeleteDeviceList received")
 	errstring := ""
 	for _, ip := range list.Ip {
 		if _, ok := s.devicemap[ip]; !ok {
-			fmt.Printf("Device not found %s\n ", ip)
+			logrus.Infof("Device not found %s ", ip)
 			errstring = errstring + "Device " + ip + " not found\n"
 			continue
 		}
-		for event, _ := range s.devicemap[ip].Subscriptions {
+		for event := range s.devicemap[ip].Subscriptions {
 			rtn := s.remove_subscription(ip, event)
 			if !rtn {
-				log.WithFields(log.Fields{
+				logrus.WithFields(logrus.Fields{
 					"Event": event,
 				}).Info("Error removing event")
 			}
 		}
-		fmt.Println("deleting device", ip)
+		logrus.Infof("deleting device %s", ip)
 		s.devicemap[ip].Datacollector.quit <- true
 
 		f := s.devicemap[ip].Datafile
 		if f != nil {
-			fmt.Println("deleteing file", f.Name())
+			logrus.Infof("deleteing file %s", f.Name())
 			err := f.Close()
 			if err != nil {
-				fmt.Println("error closing file ", f.Name(), err)
+				logrus.Errorf("error closing file %s %s", f.Name(), err)
 				errstring = errstring + "error closing file " + f.Name() + "\n"
 			}
 			err = os.Remove(f.Name())
 			if err != nil {
-				fmt.Println("error deleting file ", f.Name(), err)
+				logrus.Errorf("error deleting file %s Error:%s ", f.Name(), err)
 			}
 		} else {
-			errstring = errstring + "file " + ip + " not found\n"
+			logrus.Errorf("File not found %s", errstring+"file "+ip+" not found")
 		}
 		<-s.devicemap[ip].Datacollector.getdataend
 		delete(s.devicemap, ip)
@@ -327,7 +333,7 @@ func (s *Server) SendDeviceList(c context.Context, list *importer.DeviceList) (*
 			continue
 		}
 		if dev.Frequency > 0 && dev.Frequency < RF_DATA_COLLECT_THRESHOLD {
-			fmt.Printf("Device %s data collection interval %d out of range", ip_address, dev.Frequency)
+			logrus.Errorf("Device %s data collection interval %d out of range", ip_address, dev.Frequency)
 			errstring = errstring + "Device " + ip_address + " data collection frequency out of range\n"
 			continue
 		}
@@ -341,7 +347,7 @@ func (s *Server) SendDeviceList(c context.Context, list *importer.DeviceList) (*
 			Freqchan: make(chan uint32),
 		}
 		s.devicemap[ip_address] = &d
-		fmt.Printf("Configuring  %s\n", ip_address)
+		logrus.Infof("Configuring  %s", ip_address)
 
 		/* if initial interval is 0, create a dummy ticker, which is stopped right away, so getdata is not nil */
 		freq := dev.Frequency
@@ -354,14 +360,13 @@ func (s *Server) SendDeviceList(c context.Context, list *importer.DeviceList) (*
 		}
 
 		eventtypes := s.get_event_types(ip_address)
-		if eventtypes != nil {
-			for _, event := range eventtypes {
-				s.devicemap[ip_address].Eventtypes = append(s.devicemap[ip_address].Eventtypes, event)
-				if s.add_subscription(ip_address, event) == false {
-					errstring = errstring + "failed to subscribe event " + ip_address + " " + event + "\n"
-				}
+		for _, event := range eventtypes {
+			s.devicemap[ip_address].Eventtypes = append(s.devicemap[ip_address].Eventtypes, event)
+			if !s.add_subscription(ip_address, event) {
+				errstring = errstring + "failed to subscribe event " + ip_address + " " + event + "\n"
 			}
 		}
+
 		go s.collect_data(ip_address)
 		s.devicemap[ip_address].Datafile = get_data_file(ip_address)
 		s.update_data_file(ip_address)
@@ -373,7 +378,7 @@ func (s *Server) SendDeviceList(c context.Context, list *importer.DeviceList) (*
 }
 
 func (s *Server) GetCurrentDevices(c context.Context, e *importer.Empty) (*importer.DeviceListByIp, error) {
-	fmt.Println("In Received GetCurrentDevices")
+	logrus.Infof("In Received GetCurrentDevices")
 
 	if len(s.devicemap) == 0 {
 		return nil, status.Errorf(codes.NotFound, "No Device found\n")
@@ -381,7 +386,7 @@ func (s *Server) GetCurrentDevices(c context.Context, e *importer.Empty) (*impor
 	dl := new(importer.DeviceListByIp)
 	for k, v := range s.devicemap {
 		if v != nil {
-			fmt.Printf("IpAdd[%s] \n", k)
+			logrus.Infof("IpAdd[%s] \n", k)
 			dl.Ip = append(dl.Ip, k)
 		}
 	}
@@ -389,26 +394,25 @@ func (s *Server) GetCurrentDevices(c context.Context, e *importer.Empty) (*impor
 }
 
 func NewGrpcServer(grpcport string) (l net.Listener, g *grpc.Server, e error) {
-	fmt.Printf("Listening %s\n", grpcport)
+	logrus.Infof("Listening %s\n", grpcport)
 	g = grpc.NewServer()
 	l, e = net.Listen("tcp", grpcport)
 	return
 }
-func (s *Server) startgrpcserver() error {
-	fmt.Println("starting gRPC Server")
+func (s *Server) startgrpcserver() {
+	logrus.Info("starting gRPC Server")
 	grpcport := ":50051"
 	listener, gserver, err := NewGrpcServer(grpcport)
 	if err != nil {
-		fmt.Println("Failed to create gRPC server: ", err)
-		return err
+		logrus.Errorf("Failed to create gRPC server: %s ", err)
+		panic(err)
 	}
 	s.gRPCserver = gserver
 	importer.RegisterDeviceManagementServer(gserver, s)
 	if err := gserver.Serve(listener); err != nil {
-		fmt.Println("Failed to run gRPC server: ", err)
-		return err
+		logrus.Errorf("Failed to run gRPC server: %s ", err)
+		panic(err)
 	}
-	return nil
 
 }
 func (s *Server) kafkaCloseProducer() {
@@ -418,7 +422,7 @@ func (s *Server) kafkaCloseProducer() {
 
 }
 func (s *Server) kafkaInit() {
-	fmt.Println("Starting kafka init to Connect to broker: ")
+	logrus.Info("Starting kafka init to Connect to broker: ")
 	config := sarama.NewConfig()
 	config.Producer.RequiredAcks = sarama.WaitForAll
 	config.Producer.Retry.Max = 10
@@ -433,14 +437,14 @@ func (s *Server) handle_events(w http.ResponseWriter, r *http.Request) {
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, os.Interrupt)
 
-	fmt.Println(" IN Handle Event  ")
+	logrus.Info(" IN Handle Event  ")
 	if r.Method == "POST" {
 		Body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			fmt.Println("Error getting HTTP data", err)
+			logrus.Errorf("Error getting HTTP data %s", err)
 		}
 		defer r.Body.Close()
-		fmt.Println("Received Event Message ")
+		logrus.Info("Received Event Message ")
 		fmt.Printf("%s\n", Body)
 		message := &sarama.ProducerMessage{
 			Topic: importerTopic,
@@ -451,39 +455,42 @@ func (s *Server) handle_events(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) runServer() {
-	fmt.Println("Starting HTTP Server")
+	logrus.Info("Starting HTTP Server")
 	http.HandleFunc("/", s.handle_events)
-	http.ListenAndServeTLS(":8080", "https-server.crt", "https-server.key", nil)
+	err := http.ListenAndServeTLS(":8080", "https-server.crt", "https-server.key", nil)
+	if err != nil {
+		panic(err)
+	}
 }
 
 /* validate_ip() verifies if the ip and port are valid and already registered then return the truth value of the desired state specified by the following 2 switches,
    want_registered: 'true' if the fact of an ip is registered is the desired state
-   include_port: 'true' further checks if <ip>:<port#> does exist in the devicemap in case an ip is found registered 
+   include_port: 'true' further checks if <ip>:<port#> does exist in the devicemap in case an ip is found registered
 */
 func (s *Server) validate_ip(ip_address string, want_registered bool, include_port bool) (msg string, ok bool) {
 	msg = ""
 	ok = false
 	if !strings.Contains(ip_address, ":") {
-		fmt.Printf("Incorrect IP address %s, expected format <ip>:<port #>", ip_address)
+		logrus.Errorf("Incorrect IP address %s, expected format <ip>:<port #>", ip_address)
 		msg = "Incorrect IP address format (<ip>:<port #>)\n"
 		return
 	}
 	splits := strings.Split(ip_address, ":")
 	ip, port := splits[0], splits[1]
 	if net.ParseIP(ip) == nil {
-		fmt.Printf("Invalid IP address %s", ip)
+		logrus.Errorf("Invalid IP address %s", ip)
 		msg = "Invalid IP address " + ip + "\n"
 		return
 	}
 	if _, err := strconv.Atoi(port); err != nil {
-		fmt.Printf("Port # %s is not an integer", port)
+		logrus.Errorf("Port # %s is not an integer", port)
 		msg = "Port # " + port + " needs to be an integer\n"
 		return
 	}
 	for k := range s.devicemap {
 		if strings.HasPrefix(k, ip) {
 			if !want_registered {
-				fmt.Printf("Device ip %s already registered", ip)
+				logrus.Errorf("Device ip %s already registered", ip)
 				msg = "Device ip " + ip + " already registered\n"
 				return
 			} else if include_port {
@@ -491,7 +498,7 @@ func (s *Server) validate_ip(ip_address string, want_registered bool, include_po
 					ok = true
 					return
 				} else {
-					fmt.Printf("Device %s not registered", ip_address)
+					logrus.Errorf("Device %s not registered", ip_address)
 					msg = "Device " + ip_address + " not registered\n"
 					return
 				}
@@ -502,7 +509,7 @@ func (s *Server) validate_ip(ip_address string, want_registered bool, include_po
 		}
 	}
 	if want_registered {
-		fmt.Printf("Device %s not registered", ip_address)
+		logrus.Errorf("Device %s not registered", ip_address)
 		msg = "Device " + ip_address + " not registered\n"
 		return
 	}
@@ -511,23 +518,27 @@ func (s *Server) validate_ip(ip_address string, want_registered bool, include_po
 }
 
 func (s *Server) init_data_persistence() {
-	fmt.Println("Retrieving persisted data")
+	logrus.Info("Retrieving persisted data")
 	subscriptionListPath = pvmount + "/subscriptions"
 	if err := os.MkdirAll(subscriptionListPath, 0777); err != nil {
-		fmt.Println(err)
+		logrus.Errorf("MkdirAll %s", err)
 	} else {
 		files, err := ioutil.ReadDir(subscriptionListPath)
 		if err != nil {
-			fmt.Println(err)
+			logrus.Errorf("ReadDir %s", err)
 		} else {
 			for _, f := range files {
 				b, err := ioutil.ReadFile(path.Join(subscriptionListPath, f.Name()))
 				if err != nil {
-					fmt.Println(err)
+					logrus.Errorf("Readfile %s", err)
 				} else if f.Size() > 0 {
 					ip := f.Name()
 					d := device{}
-					json.Unmarshal(b, &d)
+					err := json.Unmarshal(b, &d)
+					if err != nil {
+						logrus.Errorf("Unmarshal %s", err)
+						return
+					}
 					s.devicemap[ip] = &d
 					freq := s.devicemap[ip].Freq
 
@@ -552,36 +563,35 @@ func (s *Server) init_data_persistence() {
 }
 
 func init() {
-	Formatter := new(log.TextFormatter)
+	Formatter := new(logrus.TextFormatter)
 	Formatter.TimestampFormat = "02-01-2006 15:04:05"
 	Formatter.FullTimestamp = true
-	log.SetFormatter(Formatter)
-	fmt.Println("Connecting to broker: ")
-	fmt.Println("Listening to  http server")
-	log.Info("log Connecting to broker:")
-	log.Info("log Listening to  http server ")
+	logrus.SetFormatter(Formatter)
+	logrus.Info("log Connecting to broker:")
+	logrus.Info("log Listening to  http server ")
 	//sarama.Logger = log.New()
 }
 
 func get_data_file(ip string) *os.File {
+	logrus.Info("get_data_file")
 	if pvmount == "" {
 		return nil
 	}
 	f, err := os.OpenFile(subscriptionListPath+"/"+ip, os.O_CREATE|os.O_RDWR, 0664)
 	if err != nil {
-		fmt.Println(err)
+		logrus.Errorf("Openfile err %s", err)
 	}
 	return f
 }
 
 func (s *Server) close_data_files() {
-	for ip, _ := range s.devicemap {
+	for ip := range s.devicemap {
 		s.devicemap[ip].Datafile.Close()
 	}
 }
 
 func main() {
-	fmt.Println("Starting Device-management Container")
+	logrus.Info("Starting Device-management Container")
 
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	client := &http.Client{
@@ -601,13 +611,11 @@ func main() {
 		s.init_data_persistence()
 	}
 
-	quit := make(chan os.Signal)
+	quit := make(chan os.Signal, 10)
 	signal.Notify(quit, os.Interrupt)
 
-	select {
-	case sig := <-quit:
-		fmt.Println("Shutting down:", sig)
-		s.kafkaCloseProducer()
-		s.close_data_files()
-	}
+	sig := <-quit
+	logrus.Infof("Shutting down:%d", sig)
+	s.kafkaCloseProducer()
+	s.close_data_files()
 }
