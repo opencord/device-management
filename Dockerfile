@@ -22,8 +22,8 @@ RUN mkdir /app
 COPY . /app/
 WORKDIR /app
 ENV GO111MODULE=on
-ENV PROTOC_VERSION 3.6.1
-ENV PROTOC_SHA256SUM 6003de742ea3fcf703cfec1cd4a3380fd143081a2eb0e559065563496af27807
+ENV PROTOC_VERSION="3.7.0"
+ENV PROTOC_SHA256SUM="a1b8ed22d6dc53c5b8680a6f1760a305b33ef471bece482e92728f00ba2a2969"
 RUN apt-get update && apt-get install --no-install-recommends -y --allow-downgrades \
 	git=1:2.20.1-2 \
 	gcc=4:8.3.0-1 \

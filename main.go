@@ -261,14 +261,11 @@ func (s *Server) collect_data(ip_address string) {
 				data := s.get_status(ip_address, resource)
 				for _, str := range data {
 					str = "Device IP: " + ip_address + " " + str
-					fmt.Printf("collected data  %s\n ...", str)
+					logrus.Infof("collected data  %s", str)
 					b := []byte(str)
 					msg := &sarama.ProducerMessage{Topic: importerTopic, Value: sarama.StringEncoder(b)}
-					select {
-					case s.dataproducer.Input() <- msg:
-						logrus.Info("Produce message")
-					default:
-					}
+					s.dataproducer.Input() <- msg
+					logrus.Info("Produce message")
 				}
 			}
 		case <-donechan:
