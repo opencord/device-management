@@ -11,11 +11,11 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-Device 192.168.4.27:8888 not registered
-192.168.4.27:8888 attached
+Device ip1:port1 not registered
+ip1:port1 attached
 Alert ResourceAdded ResourceRemoved
 unsub successful
 Alert ResourceRemoved
 event ResourceAdded not found
 event Update not found
-192.168.4.27:8888 deleted
+ip1:port1 deleted

@@ -14,8 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-./dm attach 192.168.4.27:8888:120
-./dm showdeviceeventlist 192.168.4.27:8888
-./dm cleardeviceeventlist 192.168.4.27:8888
-./dm showdeviceeventlist 192.168.4.27:8888
-./dm delete 192.168.4.27:8888
+./dm attach $1:$2:120
+./dm showdeviceeventlist $1:$2
+./dm cleardeviceeventlist $1:$2
+./dm showdeviceeventlist $1:$2
+./dm delete $1:$2

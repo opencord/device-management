@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-192.168.4.27:8888 attached
+ip1:port1 attached
 data collection interval configured to 30 seconds
 Invalid interval
 data collection interval configured to 0 seconds
-192.168.4.27:8888 deleted
+ip1:port1 deleted

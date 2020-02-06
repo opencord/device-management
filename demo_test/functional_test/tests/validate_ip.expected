@@ -14,4 +14,4 @@
 Incorrect IP address format (<ip>:<port #>)
 Invalid IP address 192.168.4
 Port # 8a needs to be an integer
-Device 192.168.4.27:8888 not registered
+Device ip1:port1 not registered

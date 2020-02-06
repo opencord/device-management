@@ -14,6 +14,7 @@
 
 SHELL = /bin/bash
 DEMOTESTDIR = ..
+DEMOTESTLOG = demotest.log
 TESTSDIR = tests
 TESTTAG = tc
 TESTS := $(wildcard ${TESTSDIR}/*.$(TESTTAG))
@@ -26,27 +27,34 @@ check-arg:
 ifeq ($(strip $(TESTS)),)
 	$(error no test found)
 endif
-ifeq "$(and $(IP1),$(PORT1),$(IP2),$(PORT2))" "" 
+ifeq "$(and $(IP1),$(PORT1),$(IP2),$(PORT2))" ""
 	$(error IP1, PORT1, IP2, and PORT2 are not all defined)
 endif
+ADDR1 := $(shell printf '${IP1}:${PORT1}\n${IP2}:${PORT2}' | sort | sed -n '1 p')
+ADDR2 := $(shell printf '${IP1}:${PORT1}\n${IP2}:${PORT2}' | sort | sed -n '2 p')
+I1 := $(shell echo ${ADDR1} | cut -d ':' -f 1)
+P1 := $(shell echo ${ADDR1} | cut -d ':' -f 2)
+I2 := $(shell echo ${ADDR2} | cut -d ':' -f 1)
+P2 := $(shell echo ${ADDR2} | cut -d ':' -f 2)
 
 demotest:
-	@cd ${DEMOTESTDIR}; make demotest || exit 1; ./demotest & \
+	@cd ${DEMOTESTDIR}; make demotest || exit 1; ./demotest > ${DEMOTESTLOG} 2>&1 & \
 	sleep 2
 
 dm: test_cli.go
 	go build -i -v -o $@
 
 test: check-arg dm demotest $(TESTS) clean
-	@echo "Alll tests passed!"
+	@echo "All tests passed!"
 
 $(TESTS): ${TESTSDIR}/%.${TESTTAG}:
-	@sed -e '/^\/\//d' -e 's/ip1/${IP1}/g; s/port1/${PORT1}/g; s/ip2/${IP2}/g; s/port2/${PORT2}/g' ${TESTSDIR}/$*.expected > ${TESTSDIR}/$*.e
+	@sed -e '/^\/\//d' -e 's/ip1/${I1}/g; s/port1/${P1}/g; s/ip2/${I2}/g; s/port2/${P2}/g' ${TESTSDIR}/$*.expected > ${TESTSDIR}/$*.e
 #	@sed -i '/^\/\//d' ${TESTSDIR}/$*.e
 	@echo "===== Running test $@"
-	@./$@ $(IP1) $(PORT1) $(IP2) $(PORT2) > /dev/null > ${TESTSDIR}/$*.out
+	@./$@ $(I1) $(P1) $(I2) $(P2) > /dev/null > ${TESTSDIR}/$*.out
 	@diff -q ${TESTSDIR}/$*.out ${TESTSDIR}/$*.e || (pkill demotest; exit 1)
 	@rm ${TESTSDIR}/*.out ${TESTSDIR}/*.e
 
 clean:
 	@pkill demotest
+	@rm ${DEMOTESTDIR}/${DEMOTESTLOG}

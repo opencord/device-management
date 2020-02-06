@@ -14,11 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-./dm unsub 192.168.4.27:8888:add
-./dm attach 192.168.4.27:8888:120
-./dm showdeviceeventlist 192.168.4.27:8888
-./dm unsub 192.168.4.27:8888:add
-./dm showdeviceeventlist 192.168.4.27:8888
-./dm unsub 192.168.4.27:8888:add
-./dm unsub 192.168.4.27:8888:update
-./dm delete 192.168.4.27:8888
+./dm unsub $1:$2:add
+./dm attach $1:$2:120
+./dm showdeviceeventlist $1:$2
+./dm unsub $1:$2:add
+./dm showdeviceeventlist $1:$2
+./dm unsub $1:$2:add
+./dm unsub $1:$2:update
+./dm delete $1:$2

@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-./dm showeventlist 192.168.4.27
+./dm showeventlist $1
 ./dm showeventlist 192.168.4:8
-./dm showeventlist 192.168.4.27:8a
-./dm showeventlist 192.168.4.27:8888
+./dm showeventlist $1:8a
+./dm showeventlist $1:$2

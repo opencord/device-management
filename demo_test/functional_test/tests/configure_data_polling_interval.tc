@@ -14,8 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-./dm attach 192.168.4.27:8888:120
-./dm period 192.168.4.27:8888:30
-./dm period 192.168.4.27:8888:3
-./dm period 192.168.4.27:8888:0
-./dm delete 192.168.4.27:8888
+./dm attach $1:$2:120
+./dm period $1:$2:30
+./dm period $1:$2:3
+./dm period $1:$2:0
+./dm delete $1:$2

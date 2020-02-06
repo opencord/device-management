@@ -15,6 +15,6 @@
 # limitations under the License.
 
 ./dm showdevices
-./dm attach 192.168.4.26:8888:120 192.168.4.27:8888:100
+./dm attach $1:$2:120 $3:$4:100
 ./dm showdevices
-./dm delete 192.168.4.26:8888 192.168.4.27:8888
+./dm delete $1:$2 $3:$4

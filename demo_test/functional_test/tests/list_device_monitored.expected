@@ -12,6 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 No Device found
-192.168.4.26:8888 192.168.4.27:8888 attached
-192.168.4.26:8888 192.168.4.27:8888
-192.168.4.26:8888 192.168.4.27:8888 deleted
+ip1:port1 ip2:port2 attached
+ip1:port1 ip2:port2
+ip1:port1 ip2:port2 deleted
