@@ -25,7 +25,7 @@ ENV GO111MODULE=on
 ENV PROTOC_VERSION="3.7.0"
 ENV PROTOC_SHA256SUM="a1b8ed22d6dc53c5b8680a6f1760a305b33ef471bece482e92728f00ba2a2969"
 RUN apt-get update && apt-get install --no-install-recommends -y --allow-downgrades \
-	git=1:2.20.1-2 \
+	git=1:2.20.1-2+deb10u1 \
 	gcc=4:8.3.0-1 \
 	curl=7.64.0-4 \
 	unzip=6.0-23+deb10u1
