@@ -1,0 +1,14 @@
+{
+    "IsPredefined": true,
+    "@odata.type": "#Role.v1_0_0.Role",
+    "Name": "",
+    "@odata.context": "/redfish/v1/$metadata#Role.Role",
+    "Id": "2",
+    "Description": null,
+    "@odata.id": "/redfish/v1/AccountService/Roles/2",
+    "AssignedPrivileges": [
+        "Login",
+        "ConfigureSelf",
+        "ConfigureComponents"
+    ]
+}

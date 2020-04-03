@@ -1,0 +1,181 @@
+# Copyright 2018-present Open Networking Foundation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+---
+
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: mock-olt-1
+  labels:
+    app: mock-olt-1
+    chart: mock-olt-1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mock-olt-1
+  template:
+    metadata:
+      labels:
+        app: mock-olt-1
+    spec:
+      containers:
+        - name: mock-olt-1
+          image: opencord/redfish-mockup-server:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8001
+              name: mock-redfish
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mock-olt-1
+spec:
+  ports:
+    - name: mock-redfish
+      port: 8401
+      targetPort: 8001
+  selector:
+    app: mock-olt-1
+
+---
+
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: mock-olt-2
+  labels:
+    app: mock-olt-2
+    chart: mock-olt-2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mock-olt-2
+  template:
+    metadata:
+      labels:
+        app: mock-olt-2
+    spec:
+      containers:
+        - name: mock-olt-2
+          image: opencord/redfish-mockup-server:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8001
+              name: mock-redfish
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mock-olt-2
+spec:
+  ports:
+    - name: mock-redfish
+      port: 8402
+      targetPort: 8001
+  selector:
+    app: mock-olt-2
+
+---
+
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: redfish-importer
+  labels:
+    app: redfish-importer
+    chart: redfish-importer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redfish-importer
+  template:
+    metadata:
+      labels:
+        app: redfish-importer
+    spec:
+      containers:
+        - name: redfish-importer
+          image: opencord/device-management:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 50051
+              name: importer
+          command: ["./main"]
+          args: ["--kafka", "voltha-kafka-0.voltha-kafka-headless.voltha:9092"]
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: redfish-importer
+spec:
+  ports:
+    - name: redfish-importer
+      port: 31085
+      targetPort: 50051
+  selector:
+    app: redfish-importer
+
+---
+
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: redfish-demotest
+  labels:
+    app: redfish-demotest
+    chart: redfish-demotest
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redfish-demotest
+  template:
+    metadata:
+      labels:
+        app: redfish-demotest
+    spec:
+      containers:
+        - name: redfish-demotest
+          image: opencord/redfish-importer-demotest:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 9999
+              name: demotest
+          command: ["./demotest"]
+          args: ["--kafka", "voltha-kafka-0.voltha-kafka-headless.voltha:9092", "--importer", "redfish-importer:31085"]
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: redfish-demotest
+spec:
+  ports:
+    - name: redfish-demotest
+      port: 9999
+      targetPort: 9999
+  selector:
+    app: redfish-demotest

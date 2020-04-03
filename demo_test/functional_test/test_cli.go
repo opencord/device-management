@@ -19,16 +19,32 @@ import "fmt"
 import "bufio"
 import "os"
 import "strings"
+import "log"
 
 func main() {
+	if len(os.Args) <= 1 {
+		log.Printf("Syntax: ./dm <arguments>")
+		os.Exit(-1)
+	}
+
 	// connect to this socket
 	cmdstr := strings.Join(os.Args[1:], " ")
-	conn, _ := net.Dial("tcp", "127.0.0.1:9999")
+	conn, err := net.Dial("tcp", "127.0.0.1:9999")
+	if err != nil {
+		log.Printf("Error opening connection: %v", err)
+		os.Exit(-1)
+	}
+
 	// send to socket
 	fmt.Fprintf(conn, cmdstr+"\n")
 
 	// listen for reply
-	message, _ := bufio.NewReader(conn).ReadString(';')
+	message, err := bufio.NewReader(conn).ReadString(';')
+	if err != nil {
+		log.Printf("Error reading result: %v", err)
+		os.Exit(-1)
+	}
+
 	message = strings.TrimSuffix(message, ";")
 	fmt.Print(message)
 }

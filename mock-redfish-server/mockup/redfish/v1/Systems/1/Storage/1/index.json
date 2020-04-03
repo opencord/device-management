@@ -1,0 +1,24 @@
+{
+    "Name": "Storage Subsystem",
+    "Links": {},
+    "Status": {
+        "State": "Enabled",
+        "HealthRollup": "OK",
+        "Health": "OK"
+    },
+    "Volumes": {
+        "@odata.id": "/redfish/v1/Systems/1/Storage/1/Volumes"
+    },
+    "Id": "1",
+    "Description": "Storage Subsystem description",
+    "Actions": {},
+    "@odata.type": "#Storage.v1_1_0.Storage",
+    "@odata.context": "/redfish/v1/$metadata#Storage.Storage",
+    "StorageControllers": [],
+    "@odata.id": "/redfish/v1/Systems/1/Storage/1",
+    "Drives": [
+        {
+            "@odata.id": "/redfish/v1/Chassis/1/Drives/1"
+        }
+    ]
+}

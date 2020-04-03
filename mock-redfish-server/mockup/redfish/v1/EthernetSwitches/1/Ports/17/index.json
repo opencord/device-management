@@ -1,0 +1,134 @@
+{
+    "Name": "Port17",
+    "MACAddress": null,
+    "Statistics": {
+        "rx_bytes": 0,
+        "tx_packets": 0,
+        "tx_bcast_packets": 0,
+        "tx_mcast_packets": 0,
+        "tx_ucast_packets": 0,
+        "rx_bcast_packets": 0,
+        "tx_error_packets": 0,
+        "rx_packets": 0,
+        "rx_mcast_packets": 0,
+        "rx_ucast_packets": 0,
+        "tx_bytes": 0,
+        "rx_error_packets": 0
+    },
+    "TransceiverStatistics": {
+        "BiasCurrent": {
+            "LowerThresholdFatal": 0,
+            "LowerThresholdCritical": 0,
+            "Status": {
+                "State": null,
+                "Health": null
+            },
+            "Reading": 0,
+            "ReadingUnits": "mA",
+            "UpperThresholdFatal": 0,
+            "UpperThresholdCritical": 0
+        },
+        "TxPower": {
+            "LowerThresholdFatal": 0,
+            "LowerThresholdCritical": 0,
+            "Status": {
+                "State": null,
+                "Health": null
+            },
+            "Reading": 0,
+            "ReadingUnits": "mW",
+            "UpperThresholdFatal": 0,
+            "UpperThresholdCritical": 0
+        },
+        "Voltage": {
+            "LowerThresholdFatal": 0,
+            "LowerThresholdCritical": 0,
+            "Status": {
+                "State": null,
+                "Health": null
+            },
+            "Reading": 0,
+            "ReadingUnits": "V",
+            "UpperThresholdFatal": 0,
+            "UpperThresholdCritical": 0
+        },
+        "Serial Number": "NA",
+        "SFP Vendor Name": "NA",
+        "RxPower": {
+            "LowerThresholdFatal": 0,
+            "LowerThresholdCritical": 0,
+            "Status": {
+                "State": null,
+                "Health": null
+            },
+            "Reading": 0,
+            "ReadingUnits": "mW",
+            "UpperThresholdFatal": 0,
+            "UpperThresholdCritical": 0
+        },
+        "Manufacture Date": "NA",
+        "Temperature": {
+            "LowerThresholdFatal": 0,
+            "LowerThresholdCritical": 0,
+            "Status": {
+                "State": null,
+                "Health": null
+            },
+            "Reading": 0,
+            "ReadingUnits": "Celsius",
+            "UpperThresholdFatal": 0,
+            "UpperThresholdCritical": 0
+        },
+        "Part Number": "NA"
+    },
+    "OperationalState": "Up",
+    "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/17",
+    "NeighborMAC": null,
+    "VLANs": {
+        "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/17/VLANs"
+    },
+    "LinkType": "Ethernet",
+    "Oem": {},
+    "FrameSize": null,
+    "PortClass": null,
+    "FullDuplex": null,
+    "StaticMACs": {
+        "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/17/StaticMACs"
+    },
+    "PortId": "QSFP port",
+    "Links": {
+        "Switch": {
+            "@odata.id": "/redfish/v1/EthernetSwitches/1"
+        },
+        "ActiveACLs": [],
+        "PortMembers": [],
+        "PrimaryVLAN": null,
+        "Oem": {
+            "Intel_RackScale": {
+                "@odata.type": "#Intel.Oem.EthernetSwitchPort"
+            }
+        },
+        "MemberOfPort": null
+    },
+    "Id": "17",
+    "Description": "Ethernet Switch Port description",
+    "IPv4Addresses": [],
+    "PortMode": null,
+    "LinkSpeedMbps": null,
+    "@odata.type": "#EthernetSwitchPort.v1_0_0.EthernetSwitchPort",
+    "IPv6Addresses": [],
+    "@odata.context": "/redfish/v1/$metadata#EthernetSwitchPort.EthernetSwitchPort",
+    "Status": {
+        "State": "Enabled",
+        "HealthRollup": "OK",
+        "Health": "OK"
+    },
+    "Autosense": null,
+    "AdministrativeState": "Down",
+    "PortType": null,
+    "NeighborInfo": {
+        "CableId": null,
+        "SwitchId": null,
+        "PortId": null
+    }
+}

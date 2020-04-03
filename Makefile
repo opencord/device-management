@@ -59,8 +59,15 @@ proto/importer.pb.go: proto/importer.proto
 
 build: docker-build
 
+docker-build: docker-build-importer
+	make -C demo_test docker-build
+	make -C mock-redfish-server docker-build
 
-docker-build: 
+docker-push: docker-push-importer
+	make -C demo_test docker-push
+	make -C mock-redfish-server docker-push
+
+docker-build-importer:
 	docker build $(DOCKER_BUILD_ARGS) \
 	-t ${DOCKER_IMAGENAME} \
 	--build-arg org_label_schema_version="${VERSION}" \
@@ -69,8 +76,10 @@ docker-build:
 	--build-arg org_label_schema_build_date="${DOCKER_LABEL_BUILD_DATE}" \
 	--build-arg org_opencord_vcs_commit_date="${DOCKER_LABEL_COMMIT_DATE}" \
 	-f Dockerfile .
-docker-push:
+
+docker-push-importer:
 	docker push ${DOCKER_IMAGENAME}
+
 
 PATH:=$(GOPATH)/bin:$(PATH)
 HADOLINT=$(shell PATH=$(GOPATH):$(PATH) which hadolint)

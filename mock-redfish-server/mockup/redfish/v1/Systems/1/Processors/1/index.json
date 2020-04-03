@@ -1,0 +1,50 @@
+{
+    "ProcessorId": {
+        "IdentificationRegisters": null,
+        "VendorId": "GenuineIntel",
+        "EffectiveModel": null,
+        "EffectiveFamily": null,
+        "MicrocodeInfo": null,
+        "Step": null
+    },
+    "Model": "Intel(R) Xeon(R) CPU D-1518 @ 2.20GHz",
+    "Name": "Processor",
+    "TotalThreads": 2,
+    "TotalCores": 4,
+    "ProcessorArchitecture": "x86",
+    "Description": "Processor Description",
+    "Id": "1",
+    "MaxSpeedMHz": 800,
+    "Socket": "CPU0",
+    "ProcessorType": "CPU",
+    "@odata.type": "#Processor.v1_0_0.Processor",
+    "@odata.context": "/redfish/v1/$metadata#Processor.Processor",
+    "Status": {
+        "State": "Enabled",
+        "HealthRollup": "OK",
+        "Health": "OK"
+    },
+    "Manufacturer": "Intel Corporation",
+    "@odata.id": "/redfish/v1/Systems/1/Processors/1",
+    "Oem": {
+        "Intel_RackScale": {
+            "Capabilities": [],
+            "@odata.type": "#Intel.Oem.Processor",
+            "Brand": "Unknown"
+        }
+    },
+    "InstructionSet": "x86-64",
+    "CpuStatus": {
+        "io wait": 0,
+        "guest": 0,
+        "LoadingPercentage": 0.6329113841056824,
+        "guest nice": 0,
+        "system": 0.6320000290870667,
+        "user nice": 0,
+        "soft irq": 0,
+        "user": 0,
+        "steal": 0,
+        "idle": 99.36699676513672,
+        "hard irq": 0
+    }
+}

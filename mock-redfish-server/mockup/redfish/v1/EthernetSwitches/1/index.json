@@ -1,0 +1,39 @@
+{
+    "SerialNumber": null,
+    "FirmwareName": null,
+    "Model": null,
+    "Name": "Switch1",
+    "Links": {
+        "ManagedBy": [
+            {
+                "@odata.id": "/redfish/v1/Managers/1"
+            }
+        ],
+        "Chassis": {
+            "@odata.id": "/redfish/v1/Chassis/1"
+        }
+    },
+    "Role": "TOR",
+    "MaxACLNumber": 10,
+    "Id": "1",
+    "FirmwareVersion": null,
+    "Description": "Ethernet Switch description",
+    "SwitchId": null,
+    "ACLs": {
+        "@odata.id": "/redfish/v1/EthernetSwitches/1/ACLs"
+    },
+    "ManufacturingDate": null,
+    "Ports": {
+        "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports"
+    },
+    "@odata.type": "#EthernetSwitch.v1_0_0.EthernetSwitch",
+    "@odata.context": "/redfish/v1/$metadata#EthernetSwitch.EthernetSwitch",
+    "Status": {
+        "State": "Enabled",
+        "HealthRollup": "OK",
+        "Health": "OK"
+    },
+    "Manufacturer": null,
+    "@odata.id": "/redfish/v1/EthernetSwitches/1",
+    "PartNumber": null
+}

@@ -1,0 +1,85 @@
+{
+    "SerialNumber": "EC1721000216",
+    "Power": {
+        "@odata.id": "/redfish/v1/Chassis/1/Power"
+    },
+    "Name": "Chassis",
+    "Links": {
+        "@odata.type": "#Chassis.v1_2_0.Links",
+        "Storage": [
+            {
+                "@odata.id": "/redfish/v1/Systems/1/Storage/1"
+            }
+        ],
+        "ComputerSystems": [
+            {
+                "@odata.id": "/redfish/v1/Systems/1"
+            }
+        ],
+        "ManagedBy": [
+            {
+                "@odata.id": "/redfish/v1/Managers/1"
+            }
+        ],
+        "Oem": {
+            "Intel_RackScale": {
+                "Switches": [
+                    {
+                        "@odata.id": "/redfish/v1/EthernetSwitches/1"
+                    }
+                ],
+                "@odata.type": "#Intel.Oem.ChassisLinks"
+            }
+        },
+        "Contains": [],
+        "Drives": [
+            {
+                "@odata.id": "/redfish/v1/Chassis/1/Drives/1"
+            }
+        ]
+    },
+    "Id": "1",
+    "IndicatorLED": "Lit",
+    "@odata.type": "#Chassis.v1_3_0.Chassis",
+    "Model": "x86_64-accton_asfx816bbx_0716-ec",
+    "PowerState": "On",
+    "Actions": {
+        "#Chassis.Reset": {
+            "target": "/redfish/v1/Chassis/1/Actions/Chassis.Reset",
+            "ResetType@Redfish.AllowableValues": [
+                "ForceOff",
+                "GracefulShutdown",
+                "GracefulRestart",
+                "ForceRestart"
+            ]
+        }
+    },
+    "Thermal": {
+        "@odata.id": "/redfish/v1/Chassis/1/Thermal"
+    },
+    "Description": "",
+    "@odata.id": "/redfish/v1/Chassis/1",
+    "SKU": null,
+    "@odata.context": "/redfish/v1/$metadata#Chassis.Chassis",
+    "Status": {
+        "State": "Enabled",
+        "HealthRollup": "OK",
+        "Health": "OK"
+    },
+    "Manufacturer": "Accton",
+    "ChassisType": "Drawer",
+    "Oem": {
+        "Intel_RackScale": {
+            "Location": {
+                "ParentId": null,
+                "Id": null
+            },
+            "@odata.type": "#Intel.Oem.Chassis",
+            "Accton_Oem": {
+                "ServiceTag": ""
+            }
+        }
+    },
+    "AssetTag": "N/A",
+    "PartNumber": ""
+}

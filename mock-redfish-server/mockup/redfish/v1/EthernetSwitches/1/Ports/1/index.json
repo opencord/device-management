@@ -1,0 +1,124 @@
+{
+    "Name": "Port1",
+    "MACAddress": null,
+    "Statistics": {},
+    "TransceiverStatistics": {
+        "BiasCurrent": {
+            "LowerThresholdFatal": 0,
+            "LowerThresholdCritical": 0.5,
+            "Status": {
+                "State": "Enabled",
+                "Health": "OK"
+            },
+            "Reading": 41.154,
+            "ReadingUnits": "mA",
+            "UpperThresholdFatal": 70,
+            "UpperThresholdCritical": 65
+        },
+        "TxPower": {
+            "LowerThresholdFatal": 0.5,
+            "LowerThresholdCritical": 0.629,
+            "Status": {
+                "State": "Enabled",
+                "Health": "OK"
+            },
+            "Reading": 1.278,
+            "ReadingUnits": "mW",
+            "UpperThresholdFatal": 3.154,
+            "UpperThresholdCritical": 2.505
+        },
+        "Voltage": {
+            "LowerThresholdFatal": 2.97,
+            "LowerThresholdCritical": 3.129,
+            "Status": {
+                "State": "Enabled",
+                "Health": "OK"
+            },
+            "Reading": 3.33,
+            "ReadingUnits": "V",
+            "UpperThresholdFatal": 3.629,
+            "UpperThresholdCritical": 3.47
+        },
+        "Serial Number": "",
+        "SFP Vendor Name": "",
+        "RxPower": {
+            "LowerThresholdFatal": 0,
+            "LowerThresholdCritical": 0.001,
+            "Status": {
+                "State": "Enabled",
+                "Health": "Warning"
+            },
+            "Reading": 0,
+            "ReadingUnits": "mW",
+            "UpperThresholdFatal": 0.372,
+            "UpperThresholdCritical": 0.316
+        },
+        "Manufacture Date": "",
+        "Temperature": {
+            "LowerThresholdFatal": -15,
+            "LowerThresholdCritical": -8,
+            "Status": {
+                "State": "Enabled",
+                "Health": "OK"
+            },
+            "Reading": 30.476,
+            "ReadingUnits": "Celsius",
+            "UpperThresholdFatal": 85,
+            "UpperThresholdCritical": 78
+        },
+        "Part Number": ""
+    },
+    "OperationalState": "Up",
+    "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/1",
+    "NeighborMAC": null,
+    "VLANs": {
+        "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/1/VLANs"
+    },
+    "LinkType": "Ethernet",
+    "Oem": {},
+    "FrameSize": null,
+    "PortClass": null,
+    "FullDuplex": null,
+    "StaticMACs": {
+        "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/1/StaticMACs"
+    },
+    "PortId": "PON port",
+    "Links": {
+        "Switch": {
+            "@odata.id": "/redfish/v1/EthernetSwitches/1"
+        },
+        "ActiveACLs": [],
+        "PortMembers": [],
+        "PrimaryVLAN": null,
+        "Oem": {
+            "Intel_RackScale": {
+                "@odata.type": "#Intel.Oem.EthernetSwitchPort"
+            }
+        },
+        "MemberOfPort": null
+    },
+    "Id": "1",
+    "Description": "Ethernet Switch Port description",
+    "ONUs": {
+        "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/1/ONUs"
+    },
+    "IPv4Addresses": [],
+    "PortMode": null,
+    "LinkSpeedMbps": null,
+    "@odata.type": "#EthernetSwitchPort.v1_0_0.EthernetSwitchPort",
+    "IPv6Addresses": [],
+    "@odata.context": "/redfish/v1/$metadata#EthernetSwitchPort.EthernetSwitchPort",
+    "Status": {
+        "State": "Enabled",
+        "HealthRollup": "OK",
+        "Health": "OK"
+    },
+    "Autosense": null,
+    "AdministrativeState": "Down",
+    "PortType": null,
+    "NeighborInfo": {
+        "CableId": null,
+        "SwitchId": null,
+        "PortId": null
+    }
+}

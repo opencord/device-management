@@ -1,0 +1,124 @@
+{
+    "Name": "Port12",
+    "MACAddress": null,
+    "Statistics": {},
+    "TransceiverStatistics": {
+        "BiasCurrent": {
+            "LowerThresholdFatal": 10,
+            "LowerThresholdCritical": 20,
+            "Status": {
+                "State": "Enabled",
+                "Health": "OK"
+            },
+            "Reading": 92.906,
+            "ReadingUnits": "mA",
+            "UpperThresholdFatal": 130,
+            "UpperThresholdCritical": 120
+        },
+        "TxPower": {
+            "LowerThresholdFatal": 1.584,
+            "LowerThresholdCritical": 1.995,
+            "Status": {
+                "State": "Enabled",
+                "Health": "OK"
+            },
+            "Reading": 3.505,
+            "ReadingUnits": "mW",
+            "UpperThresholdFatal": 6.456,
+            "UpperThresholdCritical": 6.309
+        },
+        "Voltage": {
+            "LowerThresholdFatal": 3,
+            "LowerThresholdCritical": 3.049,
+            "Status": {
+                "State": "Enabled",
+                "Health": "OK"
+            },
+            "Reading": 3.329,
+            "ReadingUnits": "V",
+            "UpperThresholdFatal": 3.599,
+            "UpperThresholdCritical": 3.549
+        },
+        "Serial Number": "HDG2019845",
+        "SFP Vendor Name": "SOURCEPHOTONICS",
+        "RxPower": {
+            "LowerThresholdFatal": 0,
+            "LowerThresholdCritical": 0,
+            "Status": {
+                "State": "Enabled",
+                "Health": "OK"
+            },
+            "Reading": 0.009,
+            "ReadingUnits": "mW",
+            "UpperThresholdFatal": 0.316,
+            "UpperThresholdCritical": 0.225
+        },
+        "Manufacture Date": "171215",
+        "Temperature": {
+            "LowerThresholdFatal": -10,
+            "LowerThresholdCritical": -5,
+            "Status": {
+                "State": "Enabled",
+                "Health": "OK"
+            },
+            "Reading": 30.23,
+            "ReadingUnits": "Celsius",
+            "UpperThresholdFatal": 80,
+            "UpperThresholdCritical": 75
+        },
+        "Part Number": "XPPXG2N2CDFA"
+    },
+    "OperationalState": "Up",
+    "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/12",
+    "NeighborMAC": null,
+    "VLANs": {
+        "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/12/VLANs"
+    },
+    "LinkType": "Ethernet",
+    "Oem": {},
+    "FrameSize": null,
+    "PortClass": null,
+    "FullDuplex": null,
+    "StaticMACs": {
+        "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/12/StaticMACs"
+    },
+    "PortId": "PON port",
+    "Links": {
+        "Switch": {
+            "@odata.id": "/redfish/v1/EthernetSwitches/1"
+        },
+        "ActiveACLs": [],
+        "PortMembers": [],
+        "PrimaryVLAN": null,
+        "Oem": {
+            "Intel_RackScale": {
+                "@odata.type": "#Intel.Oem.EthernetSwitchPort"
+            }
+        },
+        "MemberOfPort": null
+    },
+    "Id": "12",
+    "Description": "Ethernet Switch Port description",
+    "ONUs": {
+        "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/12/ONUs"
+    },
+    "IPv4Addresses": [],
+    "PortMode": null,
+    "LinkSpeedMbps": null,
+    "@odata.type": "#EthernetSwitchPort.v1_0_0.EthernetSwitchPort",
+    "IPv6Addresses": [],
+    "@odata.context": "/redfish/v1/$metadata#EthernetSwitchPort.EthernetSwitchPort",
+    "Status": {
+        "State": "Enabled",
+        "HealthRollup": "OK",
+        "Health": "OK"
+    },
+    "Autosense": null,
+    "AdministrativeState": "Down",
+    "PortType": null,
+    "NeighborInfo": {
+        "CableId": null,
+        "SwitchId": null,
+        "PortId": null
+    }
+}

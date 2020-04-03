@@ -1,0 +1,25 @@
+{
+    "DateTime": "2020-04-07T00:42:53+00:00",
+    "ServiceEnabled": false,
+    "Name": "System Log Service",
+    "DateTimeLocalOffset": "+00:00",
+    "Id": "1",
+    "Description": "ONL Peripheral Log",
+    "Actions": {
+        "#LogService.ClearLog": {
+            "target": "/redfish/v1/Managers/1/LogServices/1/Actions/LogService.Reset"
+        }
+    },
+    "MaxNumberOfRecords": 1000,
+    "Entries": {
+        "@odata.id": "/redfish/v1/Managers/1/LogServices/1/Entries"
+    },
+    "@odata.type": "#LogService.v1_0_0.LogService",
+    "@odata.context": "/redfish/v1/$metadata#LogService.LogService",
+    "Status": {
+        "State": "Enabled",
+        "Health": "OK"
+    },
+    "OverWritePolicy": "WrapsWhenFull",
+    "@odata.id": "/redfish/v1/Managers/1/LogServices/1"
+}

@@ -1,0 +1,9 @@
+{
+    "@odata.type": "#EthernetSwitchACLCollection.EthernetSwitchACLCollection",
+    "Name": "Ethernet Switch Access Control List Collection",
+    "@odata.context": "/redfish/v1/$metadata#EthernetSwitchACLCollection.EthernetSwitchACLCollection",
+    "Members": [],
+    "Description": "Switch Access Control List. Each ACL entry can be bound to any switch port",
+    "@odata.id": "/redfish/v1/EthernetSwitches/1/ACLs",
+    "Members@odata.count": 0
+}

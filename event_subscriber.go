@@ -19,6 +19,7 @@ import (
 	"encoding/json"
 	"fmt"
 	logrus "github.com/sirupsen/logrus"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -52,11 +53,11 @@ func (s *Server) add_subscription(ip string, event string) (rtn bool) {
 		return
 	}
 
-	if resp.StatusCode != 201 {
+	if resp.StatusCode != 201 && resp.StatusCode != 204 {
 		result := make(map[string]interface{})
 		dec := json.NewDecoder(resp.Body)
-		if err := dec.Decode(&result); err != nil {
-			logrus.Errorf("ERROR while adding event subscription:%s " + err.Error())
+		if err := dec.Decode(&result); err != nil && err != io.EOF {
+			logrus.Errorf("ERROR while adding event subscription:%s ", err.Error())
 			return
 		}
 		logrus.Infof("Result Decode %s", result)

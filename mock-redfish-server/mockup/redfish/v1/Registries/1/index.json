@@ -1,0 +1,19 @@
+{
+    "Languages": [
+        "en"
+    ],
+    "Registry": "Base.1.0",
+    "@odata.type": "#MessageRegistryFile.v1_0_0.MessageRegistryFile",
+    "Name": "Base Message Registry File",
+    "@odata.context": "/redfish/v1/$metadata#MessageRegistryFile.MessageRegistryFile",
+    "Id": "1",
+    "Location": [
+        {
+            "Language": "en",
+            "PublicationUri": "https://www.dmtf.org/sites/default/files/standards/documents/DSP8011_1.0.0a.json"
+        }
+    ],
+    "Description": "Base Message Registry File locations",
+    "@odata.id": "/redfish/v1/Registries/1",
+    "Oem": {}
+}

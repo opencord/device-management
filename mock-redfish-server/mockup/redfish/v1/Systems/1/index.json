@@ -1,0 +1,100 @@
+{
+    "SerialNumber": "EC1721000216",
+    "BiosVersion": "5.11",
+    "Name": "Computer System",
+    "IndicatorLED": "Lit",
+    "Manufacturer": "Accton",
+    "Memory": {
+        "@odata.id": "/redfish/v1/Systems/1/Memory"
+    },
+    "HostName": "localhost",
+    "Storage": {
+        "@odata.id": "/redfish/v1/Systems/1/Storage"
+    },
+    "PCIeFunctions": [],
+    "UUID": "d6fee3aa-785f-11ea-8e4b-af25952f929b",
+    "@odata.id": "/redfish/v1/Systems/1",
+    "AssetTag": "N/A",
+    "SystemType": "Physical",
+    "Oem": {
+        "Intel_RackScale": {
+            "ProcessorSockets": 1,
+            "DiscoveryState": "Basic",
+            "@odata.type": "#Intel.Oem.ComputerSystem",
+            "PCIeConnectionId": [],
+            "MemorySockets": 2,
+            "PciDevices": []
+        }
+    },
+    "Boot": {
+        "BootSourceOverrideMode": "Legacy",
+        "BootSourceOverrideTarget": "None",
+        "BootSourceOverrideEnabled": "Disabled"
+    },
+    "MemoryState": {
+        "FreeSwapMemoryByte": 0,
+        "TotalSwapMemoryByte": 0,
+        "FreeMemoryByte": 16169037824,
+        "TotalMemoryByte": 16687493120
+    },
+    "ProcessorSummary": {
+        "Model": "Intel(R) Xeon(R) CPU D-1518 @ 2.20GHz",
+        "Count": 1,
+        "Status": {
+            "State": "Enabled",
+            "HealthRollup": "OK",
+            "Health": "OK"
+        }
+    },
+    "PCIeDevices": [],
+    "Links": {
+        "Oem": {},
+        "ManagedBy": [
+            {
+                "@odata.id": "/redfish/v1/Managers/1"
+            }
+        ],
+        "@odata.type": "#ComputerSystem.v1_2_0.Links",
+        "Endpoints": [],
+        "Chassis": [
+            {
+                "@odata.id": "/redfish/v1/Chassis/1"
+            }
+        ]
+    },
+    "Id": "1",
+    "Description": "Computer System description",
+    "Model": "",
+    "PowerState": "On",
+    "Actions": {
+        "#ComputerSystem.Reset": {
+            "target": "/redfish/v1/Systems/1/Actions/ComputerSystem.Reset",
+            "ResetType@Redfish.AllowableValues": [
+                "ForceOff",
+                "GracefulShutdown",
+                "GracefulRestart",
+                "ForceRestart"
+            ]
+        }
+    },
+    "@odata.type": "#ComputerSystem.v1_3_0.ComputerSystem",
+    "SKU": null,
+    "@odata.context": "/redfish/v1/$metadata#ComputerSystem.ComputerSystem",
+    "Status": {
+        "State": "Enabled",
+        "HealthRollup": "OK",
+        "Health": "OK"
+    },
+    "Processors": {
+        "@odata.id": "/redfish/v1/Systems/1/Processors"
+    },
+    "MemorySummary": {
+        "TotalSystemMemoryGiB": 15.26,
+        "Status": {
+            "State": "Enabled",
+            "HealthRollup": "OK",
+            "Health": "OK"
+        }
+    },
+    "PartNumber": ""
+}

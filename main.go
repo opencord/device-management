@@ -398,8 +398,7 @@ func NewGrpcServer(grpcport string) (l net.Listener, g *grpc.Server, e error) {
 }
 func (s *Server) startgrpcserver() {
 	logrus.Info("starting gRPC Server")
-	grpcport := ":50051"
-	listener, gserver, err := NewGrpcServer(grpcport)
+	listener, gserver, err := NewGrpcServer(GlobalConfig.LocalGrpc)
 	if err != nil {
 		logrus.Errorf("Failed to create gRPC server: %s ", err)
 		panic(err)
@@ -423,7 +422,7 @@ func (s *Server) kafkaInit() {
 	config := sarama.NewConfig()
 	config.Producer.RequiredAcks = sarama.WaitForAll
 	config.Producer.Retry.Max = 10
-	producer, err := sarama.NewAsyncProducer([]string{"cord-kafka.default.svc.cluster.local:9092"}, config)
+	producer, err := sarama.NewAsyncProducer([]string{GlobalConfig.Kafka}, config)
 	if err != nil {
 		panic(err)
 	}
@@ -454,7 +453,7 @@ func (s *Server) handle_events(w http.ResponseWriter, r *http.Request) {
 func (s *Server) runServer() {
 	logrus.Info("Starting HTTP Server")
 	http.HandleFunc("/", s.handle_events)
-	err := http.ListenAndServeTLS(":8080", "https-server.crt", "https-server.key", nil)
+	err := http.ListenAndServeTLS(GlobalConfig.Local, "https-server.crt", "https-server.key", nil)
 	if err != nil {
 		panic(err)
 	}
@@ -475,9 +474,12 @@ func (s *Server) validate_ip(ip_address string, want_registered bool, include_po
 	splits := strings.Split(ip_address, ":")
 	ip, port := splits[0], splits[1]
 	if net.ParseIP(ip) == nil {
-		logrus.Errorf("Invalid IP address %s", ip)
-		msg = "Invalid IP address " + ip + "\n"
-		return
+		// also check to see if it's a valid hostname
+		if _, err := net.LookupIP(ip); err != nil {
+			logrus.Errorf("Invalid IP address %s", ip)
+			msg = "Invalid IP address " + ip + "\n"
+			return
+		}
 	}
 	if _, err := strconv.Atoi(port); err != nil {
 		logrus.Errorf("Port # %s is not an integer", port)
@@ -589,6 +591,10 @@ func (s *Server) close_data_files() {
 
 func main() {
 	logrus.Info("Starting Device-management Container")
+
+	ParseCommandLine()
+	ProcessGlobalOptions()
+	ShowGlobalOptions()
 
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	client := &http.Client{

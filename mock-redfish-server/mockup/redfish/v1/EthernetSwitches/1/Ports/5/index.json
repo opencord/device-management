@@ -1,0 +1,54 @@
+{
+    "Name": "Port5",
+    "MACAddress": null,
+    "OperationalState": null,
+    "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/5",
+    "NeighborMAC": null,
+    "VLANs": {
+        "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/5/VLANs"
+    },
+    "LinkType": null,
+    "Oem": {},
+    "FrameSize": null,
+    "PortClass": null,
+    "FullDuplex": null,
+    "StaticMACs": {
+        "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/5/StaticMACs"
+    },
+    "PortId": "PON port",
+    "Links": {
+        "Switch": {
+            "@odata.id": "/redfish/v1/EthernetSwitches/1"
+        },
+        "ActiveACLs": [],
+        "PortMembers": [],
+        "PrimaryVLAN": null,
+        "Oem": {
+            "Intel_RackScale": {
+                "@odata.type": "#Intel.Oem.EthernetSwitchPort"
+            }
+        },
+        "MemberOfPort": null
+    },
+    "Id": "5",
+    "Description": "Ethernet Switch Port description",
+    "IPv4Addresses": [],
+    "PortMode": null,
+    "LinkSpeedMbps": null,
+    "@odata.type": "#EthernetSwitchPort.v1_0_0.EthernetSwitchPort",
+    "IPv6Addresses": [],
+    "@odata.context": "/redfish/v1/$metadata#EthernetSwitchPort.EthernetSwitchPort",
+    "Status": {
+        "State": "Absent",
+        "HealthRollup": "OK",
+        "Health": "Warning"
+    },
+    "Autosense": null,
+    "AdministrativeState": null,
+    "PortType": null,
+    "NeighborInfo": {
+        "CableId": null,
+        "SwitchId": null,
+        "PortId": null
+    }
+}

@@ -1,0 +1,373 @@
+{
+    "Temperatures": [
+        {
+            "LowerThresholdFatal": null,
+            "PhysicalContext": "CPU",
+            "MemberId": "1",
+            "ReadingCelsius": 52,
+            "LowerThresholdCritical": null,
+            "RelatedItem": [
+                {
+                    "@odata.id": "/redfish/v1/Chassis/1"
+                }
+            ],
+            "Name": "System CPU Thermal Sensor Temperature",
+            "@odata.id": "/redfish/v1/Chassis/1/Thermal",
+            "LowerThresholdNonCritical": null,
+            "SensorNumber": 1,
+            "Status": {
+                "State": "Enabled",
+                "HealthRollup": null,
+                "Health": "OK"
+            },
+            "UpperThresholdNonCritical": 82,
+            "UpperThresholdFatal": 104,
+            "UpperThresholdCritical": 92
+        },
+        {
+            "LowerThresholdFatal": null,
+            "PhysicalContext": "SystemBoard",
+            "MemberId": "2",
+            "ReadingCelsius": 38.5,
+            "LowerThresholdCritical": null,
+            "RelatedItem": [
+                {
+                    "@odata.id": "/redfish/v1/Chassis/1"
+                }
+            ],
+            "Name": "Chassis Thermal Sensor Temperature",
+            "@odata.id": "/redfish/v1/Chassis/1/Thermal",
+            "LowerThresholdNonCritical": null,
+            "SensorNumber": 2,
+            "Status": {
+                "State": "Enabled",
+                "HealthRollup": null,
+                "Health": "OK"
+            },
+            "UpperThresholdNonCritical": 45,
+            "UpperThresholdFatal": 60,
+            "UpperThresholdCritical": 55
+        },
+        {
+            "LowerThresholdFatal": null,
+            "PhysicalContext": "SystemBoard",
+            "MemberId": "3",
+            "ReadingCelsius": 32.5,
+            "LowerThresholdCritical": null,
+            "RelatedItem": [
+                {
+                    "@odata.id": "/redfish/v1/Chassis/1"
+                }
+            ],
+            "Name": "Chassis Thermal Sensor Temperature",
+            "@odata.id": "/redfish/v1/Chassis/1/Thermal",
+            "LowerThresholdNonCritical": null,
+            "SensorNumber": 3,
+            "Status": {
+                "State": "Enabled",
+                "HealthRollup": null,
+                "Health": "OK"
+            },
+            "UpperThresholdNonCritical": 45,
+            "UpperThresholdFatal": 60,
+            "UpperThresholdCritical": 55
+        },
+        {
+            "LowerThresholdFatal": null,
+            "PhysicalContext": "SystemBoard",
+            "MemberId": "4",
+            "ReadingCelsius": 33,
+            "LowerThresholdCritical": null,
+            "RelatedItem": [
+                {
+                    "@odata.id": "/redfish/v1/Chassis/1"
+                }
+            ],
+            "Name": "Chassis Thermal Sensor Temperature",
+            "@odata.id": "/redfish/v1/Chassis/1/Thermal",
+            "LowerThresholdNonCritical": null,
+            "SensorNumber": 4,
+            "Status": {
+                "State": "Enabled",
+                "HealthRollup": null,
+                "Health": "OK"
+            },
+            "UpperThresholdNonCritical": 45,
+            "UpperThresholdFatal": 60,
+            "UpperThresholdCritical": 55
+        },
+        {
+            "LowerThresholdFatal": null,
+            "PhysicalContext": "SystemBoard",
+            "MemberId": "5",
+            "ReadingCelsius": 37,
+            "LowerThresholdCritical": null,
+            "RelatedItem": [
+                {
+                    "@odata.id": "/redfish/v1/Chassis/1"
+                }
+            ],
+            "Name": "Chassis Thermal Sensor Temperature",
+            "@odata.id": "/redfish/v1/Chassis/1/Thermal",
+            "LowerThresholdNonCritical": null,
+            "SensorNumber": 5,
+            "Status": {
+                "State": "Enabled",
+                "HealthRollup": null,
+                "Health": "OK"
+            },
+            "UpperThresholdNonCritical": 45,
+            "UpperThresholdFatal": 60,
+            "UpperThresholdCritical": 55
+        },
+        {
+            "LowerThresholdFatal": null,
+            "PhysicalContext": "PowerSupply",
+            "MemberId": "6",
+            "ReadingCelsius": 31,
+            "LowerThresholdCritical": null,
+            "RelatedItem": [
+                {
+                    "@odata.id": "/redfish/v1/Chassis/1"
+                }
+            ],
+            "Name": "PSU Thermal Sensor Temperature",
+            "@odata.id": "/redfish/v1/Chassis/1/Thermal",
+            "LowerThresholdNonCritical": null,
+            "SensorNumber": 6,
+            "Status": {
+                "State": "Enabled",
+                "HealthRollup": null,
+                "Health": "OK"
+            },
+            "UpperThresholdNonCritical": 45,
+            "UpperThresholdFatal": 60,
+            "UpperThresholdCritical": 55
+        },
+        {
+            "LowerThresholdFatal": null,
+            "PhysicalContext": "PowerSupply",
+            "MemberId": "7",
+            "ReadingCelsius": 0,
+            "LowerThresholdCritical": null,
+            "RelatedItem": [
+                {
+                    "@odata.id": "/redfish/v1/Chassis/1"
+                }
+            ],
+            "Name": "PSU Thermal Sensor Temperature",
+            "@odata.id": "/redfish/v1/Chassis/1/Thermal",
+            "LowerThresholdNonCritical": null,
+            "SensorNumber": 7,
+            "Status": {
+                "State": "Absent",
+                "HealthRollup": null,
+                "Health": "Warning"
+            },
+            "UpperThresholdNonCritical": 0,
+            "UpperThresholdFatal": 0,
+            "UpperThresholdCritical": 0
+        }
+    ],
+    "Redundancy": [],
+    "@odata.type": "#Thermal.v1_1_0.Thermal",
+    "Name": "Thermal",
+    "@odata.context": "/redfish/v1/$metadata#Thermal.Thermal",
+    "Id": "Thermal",
+    "Fans": [
+        {
+            "LowerThresholdFatal": null,
+            "PhysicalContext": "Back",
+            "MemberId": "1",
+            "LowerThresholdCritical": null,
+            "ReadingUnits": "RPM",
+            "RelatedItem": [
+                {
+                    "@odata.id": "/redfish/v1/Chassis/1"
+                }
+            ],
+            "Name": "System Fan",
+            "@odata.id": "/redfish/v1/Chassis/1/Thermal",
+            "LowerThresholdNonCritical": null,
+            "Status": {
+                "State": "Enabled",
+                "HealthRollup": null,
+                "Health": "OK"
+            },
+            "Reading": 12700,
+            "UpperThresholdNonCritical": null,
+            "UpperThresholdFatal": null,
+            "UpperThresholdCritical": null
+        },
+        {
+            "LowerThresholdFatal": null,
+            "PhysicalContext": "Back",
+            "MemberId": "2",
+            "LowerThresholdCritical": null,
+            "ReadingUnits": "RPM",
+            "RelatedItem": [
+                {
+                    "@odata.id": "/redfish/v1/Chassis/1"
+                }
+            ],
+            "Name": "System Fan",
+            "@odata.id": "/redfish/v1/Chassis/1/Thermal",
+            "LowerThresholdNonCritical": null,
+            "Status": {
+                "State": "Enabled",
+                "HealthRollup": null,
+                "Health": "OK"
+            },
+            "Reading": 12400,
+            "UpperThresholdNonCritical": null,
+            "UpperThresholdFatal": null,
+            "UpperThresholdCritical": null
+        },
+        {
+            "LowerThresholdFatal": null,
+            "PhysicalContext": "Back",
+            "MemberId": "3",
+            "LowerThresholdCritical": null,
+            "ReadingUnits": "RPM",
+            "RelatedItem": [
+                {
+                    "@odata.id": "/redfish/v1/Chassis/1"
+                }
+            ],
+            "Name": "System Fan",
+            "@odata.id": "/redfish/v1/Chassis/1/Thermal",
+            "LowerThresholdNonCritical": null,
+            "Status": {
+                "State": "Enabled",
+                "HealthRollup": null,
+                "Health": "OK"
+            },
+            "Reading": 12700,
+            "UpperThresholdNonCritical": null,
+            "UpperThresholdFatal": null,
+            "UpperThresholdCritical": null
+        },
+        {
+            "LowerThresholdFatal": null,
+            "PhysicalContext": "Back",
+            "MemberId": "4",
+            "LowerThresholdCritical": null,
+            "ReadingUnits": "RPM",
+            "RelatedItem": [
+                {
+                    "@odata.id": "/redfish/v1/Chassis/1"
+                }
+            ],
+            "Name": "System Fan",
+            "@odata.id": "/redfish/v1/Chassis/1/Thermal",
+            "LowerThresholdNonCritical": null,
+            "Status": {
+                "State": "Enabled",
+                "HealthRollup": null,
+                "Health": "OK"
+            },
+            "Reading": 12700,
+            "UpperThresholdNonCritical": null,
+            "UpperThresholdFatal": null,
+            "UpperThresholdCritical": null
+        },
+        {
+            "LowerThresholdFatal": null,
+            "PhysicalContext": "Back",
+            "MemberId": "5",
+            "LowerThresholdCritical": null,
+            "ReadingUnits": "RPM",
+            "RelatedItem": [
+                {
+                    "@odata.id": "/redfish/v1/Chassis/1"
+                }
+            ],
+            "Name": "System Fan",
+            "@odata.id": "/redfish/v1/Chassis/1/Thermal",
+            "LowerThresholdNonCritical": null,
+            "Status": {
+                "State": "Enabled",
+                "HealthRollup": null,
+                "Health": "OK"
+            },
+            "Reading": 12600,
+            "UpperThresholdNonCritical": null,
+            "UpperThresholdFatal": null,
+            "UpperThresholdCritical": null
+        },
+        {
+            "LowerThresholdFatal": null,
+            "PhysicalContext": "Back",
+            "MemberId": "6",
+            "LowerThresholdCritical": null,
+            "ReadingUnits": "RPM",
+            "RelatedItem": [
+                {
+                    "@odata.id": "/redfish/v1/Chassis/1"
+                }
+            ],
+            "Name": "System Fan",
+            "@odata.id": "/redfish/v1/Chassis/1/Thermal",
+            "LowerThresholdNonCritical": null,
+            "Status": {
+                "State": "Enabled",
+                "HealthRollup": null,
+                "Health": "OK"
+            },
+            "Reading": 12700,
+            "UpperThresholdNonCritical": null,
+            "UpperThresholdFatal": null,
+            "UpperThresholdCritical": null
+        },
+        {
+            "LowerThresholdFatal": null,
+            "PhysicalContext": "PowerSupply",
+            "MemberId": "7",
+            "LowerThresholdCritical": null,
+            "ReadingUnits": "RPM",
+            "RelatedItem": [
+                {
+                    "@odata.id": "/redfish/v1/Chassis/1"
+                }
+            ],
+            "Name": "PSU Fan",
+            "@odata.id": "/redfish/v1/Chassis/1/Thermal",
+            "LowerThresholdNonCritical": null,
+            "Status": {
+                "State": "Enabled",
+                "HealthRollup": null,
+                "Health": "OK"
+            },
+            "Reading": 24480,
+            "UpperThresholdNonCritical": null,
+            "UpperThresholdFatal": null,
+            "UpperThresholdCritical": null
+        },
+        {
+            "LowerThresholdFatal": null,
+            "PhysicalContext": "PowerSupply",
+            "MemberId": "8",
+            "LowerThresholdCritical": null,
+            "ReadingUnits": "RPM",
+            "RelatedItem": [
+                {
+                    "@odata.id": "/redfish/v1/Chassis/1"
+                }
+            ],
+            "Name": "PSU Fan",
+            "@odata.id": "/redfish/v1/Chassis/1/Thermal",
+            "LowerThresholdNonCritical": null,
+            "Status": {
+                "State": "Enabled",
+                "HealthRollup": null,
+                "Health": "Warning"
+            },
+            "Reading": 0,
+            "UpperThresholdNonCritical": null,
+            "UpperThresholdFatal": null,
+            "UpperThresholdCritical": null
+        }
+    ],
+    "Description": "Collection of Thermal sensors",
+    "@odata.id": "/redfish/v1/Chassis/1/Thermal"
+}

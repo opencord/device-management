@@ -1,0 +1,70 @@
+{
+    "@odata.type": "#EthernetSwitchPortCollection.EthernetSwitchPortCollection",
+    "Name": "Ethernet Switch Port Collection",
+    "@odata.context": "/redfish/v1/$metadata#EthernetSwitchPortCollection.EthernetSwitchPortCollection",
+    "Members": [
+        {
+            "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/1"
+        },
+        {
+            "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/2"
+        },
+        {
+            "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/3"
+        },
+        {
+            "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/4"
+        },
+        {
+            "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/5"
+        },
+        {
+            "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/6"
+        },
+        {
+            "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/7"
+        },
+        {
+            "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/8"
+        },
+        {
+            "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/9"
+        },
+        {
+            "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/10"
+        },
+        {
+            "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/11"
+        },
+        {
+            "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/12"
+        },
+        {
+            "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/13"
+        },
+        {
+            "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/14"
+        },
+        {
+            "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/15"
+        },
+        {
+            "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/16"
+        },
+        {
+            "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/17"
+        },
+        {
+            "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/18"
+        },
+        {
+            "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/19"
+        },
+        {
+            "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/20"
+        }
+    ],
+    "Description": "Collection of Ethernet Switch Ports",
+    "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports",
+    "Members@odata.count": 20
+}

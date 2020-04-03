@@ -1,0 +1,81 @@
+{
+    "FQDN": "localhost",
+    "IPv6StaticDefaultGateways": [],
+    "Name": "Manager NIC",
+    "MACAddress": "a8:2b:b5:36:78:6c",
+    "StatelessAddressAutoConfig": {
+        "IPv6AutoConfigEnabled": false
+    },
+    "MaxIPv6StaticAddresses": null,
+    "NameServers": [
+        "8.8.8.8"
+    ],
+    "IPv6DefaultGateway": "",
+    "HostName": "localhost",
+    "IPv4StaticAddresses": [
+        {
+            "Address": "10.90.0.114"
+        }
+    ],
+    "IPv6StaticAddresses": [],
+    "@odata.id": "/redfish/v1/Managers/1/EthernetInterfaces/1",
+    "SpeedMbps": 1000,
+    "Links": {
+        "Oem": {
+            "Intel_RackScale": {
+                "@odata.type": "#Intel.Oem.EthernetInterface"
+            }
+        },
+        "Endpoints": []
+    },
+    "Oem": {},
+    "InterfaceEnabled": true,
+    "IPv6Addresses": [
+        {
+            "PrefixLength": 64,
+            "AddressOrigin": "LinkLocal",
+            "Address": "fe80::aa2b:b5ff:fe36:786c",
+            "AddressState": null
+        }
+    ],
+    "MTUSize": 1500,
+    "StaticNameServers": [
+        "8.8.8.8"
+    ],
+    "LinkStatus": "LinkUp",
+    "Id": "1",
+    "PermanentMACAddress": "a8:2b:b5:36:78:6c",
+    "Description": "Manager NIC description",
+    "AutoNeg": true,
+    "IPv6AddressPolicyTable": [],
+    "IPv4Addresses": [
+        {
+            "AddressOrigin": "Static",
+            "Gateway": "10.90.0.1",
+            "Address": "10.90.0.114",
+            "SubnetMask": "255.255.0.0"
+        }
+    ],
+    "DHCPv6": {
+        "OperatingMode": "Disabled",
+        "UseDNSServers": false,
+        "UseRapidCommit": false,
+        "UseNTPServers": false
+    },
+    "@odata.type": "#EthernetInterface.v1_4_0.EthernetInterface",
+    "@odata.context": "/redfish/v1/$metadata#EthernetInterface.EthernetInterface",
+    "Status": {
+        "State": "Enabled",
+        "HealthRollup": "OK",
+        "Health": "OK"
+    },
+    "FullDuplex": true,
+    "DHCPv4": {
+        "UseDNSServers": true,
+        "DHCPEnabled": false,
+        "UseNTPServers": false,
+        "UseDomainName": false,
+        "UseGateway": true,
+        "UseStaticRoutes": false
+    }
+}

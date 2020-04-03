@@ -41,7 +41,6 @@ var EVENTS_MAP = map[string]string{
 	"alert":  "Alert",
 	"update": "Update"}
 
-var default_address string = "localhost:31085"
 var importerTopic = "importer"
 var DataConsumer sarama.Consumer
 
@@ -95,20 +94,24 @@ func topicListener(topic *string, master sarama.Consumer) {
 }
 
 func kafkainit() {
-	cmd := exec.Command("/bin/sh", "kafka_ip.sh")
 	var kafkaIP string
-	var out bytes.Buffer
-	cmd.Stdout = &out
-	err := cmd.Run()
-	if err != nil {
-		logrus.Info(err)
-		os.Exit(1)
+	if GlobalConfig.Kafka == "kafka_ip.sh" {
+		cmd := exec.Command("/bin/sh", "kafka_ip.sh")
+		var out bytes.Buffer
+		cmd.Stdout = &out
+		err := cmd.Run()
+		if err != nil {
+			logrus.Info(err)
+			os.Exit(1)
+		}
+		kafkaIP = out.String()
+		kafkaIP = strings.TrimSuffix(kafkaIP, "\n")
+		kafkaIP = kafkaIP + ":9092"
+		logrus.Infof("IP address of kafka-cord-0:%s", kafkaIP)
+	} else {
+		kafkaIP = GlobalConfig.Kafka
 	}
 
-	kafkaIP = out.String()
-	kafkaIP = strings.TrimSuffix(kafkaIP, "\n")
-	kafkaIP = kafkaIP + ":9092"
-	logrus.Infof("IP address of kafka-cord-0:%s", kafkaIP)
 	config := sarama.NewConfig()
 	config.Consumer.Return.Errors = true
 	master, err := sarama.NewConsumer([]string{kafkaIP}, config)
@@ -119,20 +122,25 @@ func kafkainit() {
 
 	go topicListener(&importerTopic, master)
 }
+
 func main() {
+	ParseCommandLine()
+	ProcessGlobalOptions()
+	ShowGlobalOptions()
+
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	logrus.Info("Launching server...")
 	logrus.Info("kafkaInit starting")
 	kafkainit()
 
-	ln, err := net.Listen("tcp", ":9999")
+	ln, err := net.Listen("tcp", GlobalConfig.Local)
 	if err != nil {
 		fmt.Println("could not listen")
 		logrus.Fatalf("did not listen: %v", err)
 	}
 	defer ln.Close()
 
-	conn, err = grpc.Dial(default_address, grpc.WithInsecure())
+	conn, err = grpc.Dial(GlobalConfig.Importer, grpc.WithInsecure())
 	if err != nil {
 		logrus.Fatalf("did not connect: %v", err)
 	}

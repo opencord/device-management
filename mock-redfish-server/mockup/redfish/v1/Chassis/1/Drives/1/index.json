@@ -1,0 +1,58 @@
+{
+    "SerialNumber": "TS32ZBTMM1600_D486350097",
+    "Name": "Drive",
+    "IndicatorLED": null,
+    "Manufacturer": null,
+    "Actions": {
+        "#Drive.SecureErase": {
+            "target": "/redfish/v1/Chassis/1/Drives/1/Actions/Drive.SecureErase"
+        }
+    },
+    "EncryptionStatus": null,
+    "BlockSizeBytes": null,
+    "RotationSpeedRPM": null,
+    "@odata.id": "/redfish/v1/Chassis/1/Drives/1",
+    "MediaType": "SSD",
+    "StatusIndicator": null,
+    "Oem": {
+        "Intel_RackScale": {
+            "DriveErased": null,
+            "@odata.type": "#Intel.Oem.Drive",
+            "EraseOnDetach": null,
+            "Storage": {
+                "@odata.id": "/redfish/v1/Systems/1/Storage/1"
+            },
+            "FirmwareVersion": null,
+            "PCIeFunction": null
+        }
+    },
+    "AssetTag": null,
+    "EncryptionAbility": null,
+    "CapacityBytes": 32017047552,
+    "Links": {
+        "@odata.type": "#Drive.v1_1_0.Links",
+        "Endpoints": [],
+        "Volumes": []
+    },
+    "Id": "1",
+    "FailurePredicted": null,
+    "Description": "Drive description",
+    "HotspareType": null,
+    "Model": "",
+    "PredictedMediaLifeLeftPercent": null,
+    "Identifiers": [],
+    "Revision": "O0918B",
+    "NegotiatedSpeedGbs": null,
+    "Protocol": "SATA",
+    "@odata.type": "#Drive.v1_1_1.Drive",
+    "SKU": null,
+    "@odata.context": "/redfish/v1/$metadata#Chassis.Chassis",
+    "Status": {
+        "State": "Enabled",
+        "HealthRollup": "OK",
+        "Health": "OK"
+    },
+    "CapableSpeedGbs": null,
+    "Location": [],
+    "PartNumber": null
+}

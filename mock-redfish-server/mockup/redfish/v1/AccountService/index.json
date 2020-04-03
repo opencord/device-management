@@ -1,0 +1,27 @@
+{
+    "MaxPasswordLength": 24,
+    "ServiceEnabled": true,
+    "Name": "Account Service",
+    "Roles": {
+        "@odata.id": "/redfish/v1/AccountService/Roles"
+    },
+    "Id": "AccountService",
+    "Description": "Account Service ",
+    "AuthFailureLoggingThreshold": 3,
+    "AccountLockoutCounterResetAfter": 30,
+    "MinPasswordLength": 6,
+    "Accounts": {
+        "@odata.id": "/redfish/v1/AccountService/Accounts"
+    },
+    "@odata.type": "#AccountService.v1_0_0.AccountService",
+    "AccountLockoutDuration": 30,
+    "@odata.context": "/redfish/v1/$metadata#AccountService.AccountService",
+    "Status": {
+        "State": "Enabled",
+        "HealthRollup": "OK",
+        "Health": "OK"
+    },
+    "AccountLockoutThreshold": 5,
+    "@odata.id": "/redfish/v1/AccountService",
+    "Oem": {}
+}
