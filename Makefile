@@ -15,6 +15,8 @@
 # Configure shell
 SHELL = bash -eu -o pipefail
 
+ROOT_DIR  := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+
 # Variables
 VERSION                  ?= $(shell cat ./VERSION)
 CONTAINER_NAME           ?= $(notdir $(abspath .))
@@ -31,6 +33,10 @@ DOCKER_LABEL_VCS_URL     ?= $(shell git remote get-url $(shell git remote))
 DOCKER_LABEL_VCS_REF     ?= $(shell git diff-index --quiet HEAD -- && git rev-parse HEAD || echo "unknown")
 DOCKER_LABEL_COMMIT_DATE ?= $(shell git diff-index --quiet HEAD -- && git show -s --format=%cd --date=iso-strict HEAD || echo "unknown" )
 DOCKER_LABEL_BUILD_DATE  ?= $(shell date -u "+%Y-%m-%dT%H:%M:%SZ")
+
+ROBOT_MOCK_OLT_FILE             ?= $(ROOT_DIR)/demo_test/functional_test/robot-mock-olt.yaml
+ROBOT_DEBUG_LOG_OPT             ?=
+ROBOT_MISC_ARGS                 ?=
 
 help:
 	@echo "Usage: make [<target>]"
@@ -50,6 +56,13 @@ help:
 	@echo
 
 all: test
+
+# target to invoke mock-olt robot tests
+functional-mock-test: ROBOT_MISC_ARGS += $(ROBOT_DEBUG_LOG_OPT)
+functional-mock-test: ROBOT_CONFIG_FILE := $(ROBOT_MOCK_OLT_FILE)
+functional-mock-test: ROBOT_FILE := $(ROOT_DIR)/demo_test/functional_test/importer.robot
+functional-mock-test: importer-functional-test
+
 proto/importer.pb.go: proto/importer.proto
 	mkdir -p proto
 	protoc --proto_path=proto \
@@ -139,3 +152,20 @@ test: docker-build
 
 clean:
 	@echo "No cleanup available"
+
+# Check out a copy of voltha-system-tests. We will reuse its robot configuration
+# and its robot libraries
+voltha-system-tests:
+	git clone https://github.com/opencord/voltha-system-tests.git
+
+# virtualenv for the robot tools
+# VOL-2724 Invoke pip via python3 to avoid pathname too long on QA jobs
+vst_venv: voltha-system-tests
+	virtualenv -p python3 $@ && \
+	VIRTUAL_ENV_DISABLE_PROMPT=true source ./$@/bin/activate && \
+	python -m pip install -r voltha-system-tests/requirements.txt
+
+importer-functional-test: vst_venv
+	VIRTUAL_ENV_DISABLE_PROMPT=true source ./$</bin/activate ; set -u ;\
+	cd demo_test/functional_test ;\
+	robot -V $(ROBOT_CONFIG_FILE) $(ROBOT_MISC_ARGS) $(ROBOT_FILE)

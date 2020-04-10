@@ -30,6 +30,11 @@ It runs on top of the device-management container and 'demotest' requiring the a
       iii) At command line, type
 	robot importer.robot
 
+      Note: If ../../voltha-system-tests does not exist, and the tests are run without
+            the use_mock_redfish variable set, then two harmless warnings will be emitted
+	    due to the missing robot voltha imports. These imports are only required
+	    when use_mock_redfish==True.
+
 2. Manual testing at command line
    To build 'dm', at command line, type
 	make
