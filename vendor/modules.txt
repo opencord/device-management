@@ -1,14 +1,14 @@
-# github.com/Shopify/sarama v1.25.0
+# github.com/Shopify/sarama v1.26.1
 github.com/Shopify/sarama
 # github.com/davecgh/go-spew v1.1.1
 github.com/davecgh/go-spew/spew
-# github.com/eapache/go-resiliency v1.1.0
+# github.com/eapache/go-resiliency v1.2.0
 github.com/eapache/go-resiliency/breaker
 # github.com/eapache/go-xerial-snappy v0.0.0-20180814174437-776d5712da21
 github.com/eapache/go-xerial-snappy
 # github.com/eapache/queue v1.1.0
 github.com/eapache/queue
-# github.com/golang/protobuf v1.3.2
+# github.com/golang/protobuf v1.3.5
 github.com/golang/protobuf/proto
 github.com/golang/protobuf/ptypes
 github.com/golang/protobuf/ptypes/any
@@ -17,14 +17,14 @@ github.com/golang/protobuf/ptypes/empty
 github.com/golang/protobuf/ptypes/timestamp
 # github.com/golang/snappy v0.0.1
 github.com/golang/snappy
-# github.com/hashicorp/go-uuid v1.0.1
+# github.com/hashicorp/go-uuid v1.0.2
 github.com/hashicorp/go-uuid
-# github.com/jcmturner/gofork v0.0.0-20190328161633-dc7c13fece03
+# github.com/jcmturner/gofork v1.0.0
 github.com/jcmturner/gofork/encoding/asn1
 github.com/jcmturner/gofork/x/crypto/pbkdf2
 # github.com/jessevdk/go-flags v1.4.0
 github.com/jessevdk/go-flags
-# github.com/klauspost/compress v1.9.7
+# github.com/klauspost/compress v1.9.8
 github.com/klauspost/compress/fse
 github.com/klauspost/compress/huff0
 github.com/klauspost/compress/snappy
@@ -32,17 +32,17 @@ github.com/klauspost/compress/zstd
 github.com/klauspost/compress/zstd/internal/xxhash
 # github.com/konsorten/go-windows-terminal-sequences v1.0.1
 github.com/konsorten/go-windows-terminal-sequences
-# github.com/pierrec/lz4 v2.2.6+incompatible
+# github.com/pierrec/lz4 v2.4.1+incompatible
 github.com/pierrec/lz4
 github.com/pierrec/lz4/internal/xxh32
-# github.com/rcrowley/go-metrics v0.0.0-20181016184325-3113b8401b8a
+# github.com/rcrowley/go-metrics v0.0.0-20190826022208-cac0b30c2563
 github.com/rcrowley/go-metrics
-# github.com/sirupsen/logrus v1.4.2
+# github.com/sirupsen/logrus v1.5.0
 github.com/sirupsen/logrus
-# golang.org/x/crypto v0.0.0-20190404164418-38d8ce5564a5
+# golang.org/x/crypto v0.0.0-20200204104054-c9f3fb736b72
 golang.org/x/crypto/md4
 golang.org/x/crypto/pbkdf2
-# golang.org/x/net v0.0.0-20191119073136-fc4aabc6c914
+# golang.org/x/net v0.0.0-20200202094626-16171245cfb2
 golang.org/x/net/context
 golang.org/x/net/http/httpguts
 golang.org/x/net/http2
@@ -54,14 +54,14 @@ golang.org/x/net/proxy
 golang.org/x/net/trace
 # golang.org/x/sys v0.0.0-20190422165155-953cdadca894
 golang.org/x/sys/unix
-# golang.org/x/text v0.3.0
+# golang.org/x/text v0.3.2
 golang.org/x/text/secure/bidirule
 golang.org/x/text/transform
 golang.org/x/text/unicode/bidi
 golang.org/x/text/unicode/norm
 # google.golang.org/genproto v0.0.0-20190927181202-20e1ac93f88c
 google.golang.org/genproto/googleapis/rpc/status
-# google.golang.org/grpc v1.27.0
+# google.golang.org/grpc v1.28.1
 google.golang.org/grpc
 google.golang.org/grpc/attributes
 google.golang.org/grpc/backoff
@@ -83,8 +83,10 @@ google.golang.org/grpc/internal/binarylog
 google.golang.org/grpc/internal/buffer
 google.golang.org/grpc/internal/channelz
 google.golang.org/grpc/internal/envconfig
+google.golang.org/grpc/internal/grpclog
 google.golang.org/grpc/internal/grpcrand
 google.golang.org/grpc/internal/grpcsync
+google.golang.org/grpc/internal/grpcutil
 google.golang.org/grpc/internal/resolver/dns
 google.golang.org/grpc/internal/resolver/passthrough
 google.golang.org/grpc/internal/syscall
@@ -102,7 +104,7 @@ google.golang.org/grpc/tap
 gopkg.in/jcmturner/aescts.v1
 # gopkg.in/jcmturner/dnsutils.v1 v1.0.1
 gopkg.in/jcmturner/dnsutils.v1
-# gopkg.in/jcmturner/gokrb5.v7 v7.2.3
+# gopkg.in/jcmturner/gokrb5.v7 v7.5.0
 gopkg.in/jcmturner/gokrb5.v7/asn1tools
 gopkg.in/jcmturner/gokrb5.v7/client
 gopkg.in/jcmturner/gokrb5.v7/config
@@ -136,5 +138,5 @@ gopkg.in/jcmturner/gokrb5.v7/types
 # gopkg.in/jcmturner/rpc.v1 v1.1.0
 gopkg.in/jcmturner/rpc.v1/mstypes
 gopkg.in/jcmturner/rpc.v1/ndr
-# gopkg.in/yaml.v2 v2.2.3
+# gopkg.in/yaml.v2 v2.2.8
 gopkg.in/yaml.v2

@@ -27,18 +27,42 @@ Resource           ../../voltha-system-tests/libraries/k8s.robot
 
 *** Variables ***
 @{ADDR_LIST}      192.168.4.26:8888    192.168.4.27:8888
+
+# timeout: timeout for most operations.
 ${timeout}        60s
+
+# pod_timeout: timeout to bring up a new pod. It has been observed to take up to
+# 120 seconds for images to pull. Set 300 seconds to alloww room for temporary
+# network fluctuation.
+${pod_timeout}    300s
+
+# use_mock_redfish: If true, mock redfish OLTs will be used instead of a 
+#    physical device. Default: False.
 ${use_mock_redfish}    False
+
+# use_Containerized_dm: If true, then dm will be run from inside the
+#     demo-test container. Default: False.
 ${use_containerized_dm}    False
+
+# voltha_suite_setup. If true, then voltha common test suite setup will
+#     be run. Among other things, this will also check to ensure that
+#     Kubernetes is configured. Default: False.
 ${voltha_suite_setup}    False
+
+# Pod names when using the Kubernetes-based deploy-redfish-importer.yaml. See
+# the keyword "Install Mock Redfish Server" for the step that brings up these
+# pods and checks their existence.
 ${IMPORTER_POD_NAME}    redfish-importer
 ${DEMOTEST_POD_NAME}    redfish-demotest
+${MOCK1_POD_NAME}    mock-olt-1
+${MOCK2_POD_NAME}    mock-olt-2
 
 *** Test Cases ***
 Add Device to Monitor
     [Documentation]    This test case excercises the API, SendDeviceList, which registers Redfish devices to monitor.
-    ${EXPECTED}=    RUN    sed -e '/^\\/\\//d' -e 's/ip1/${IP1}/g' -e 's/port1/${PORT1}/g' -e 's/ip2/${IP2}/g' -e 's/port2/${PORT2}/g' tests/add_device_to_monitor.expected
-    ${OUTPUT}=    Run Test    tests/add_device_to_monitor.tc    ${IP1}    ${PORT1}    ${IP2}    ${PORT2}
+    ${TESTNAME}=    Set Variable If    ${multiple_olt}    tests/add_device_to_monitor    tests/add_single_device_to_monitor   
+    ${EXPECTED}=    RUN    sed -e '/^\\/\\//d' -e 's/ip1/${IP1}/g' -e 's/port1/${PORT1}/g' -e 's/ip2/${IP2}/g' -e 's/port2/${PORT2}/g' ${TESTNAME}.expected
+    ${OUTPUT}=    Run Test    ${TESTNAME}.tc    ${IP1}    ${PORT1}    ${IP2}    ${PORT2}
     Should Be Equal    ${EXPECTED}    ${OUTPUT}
 
 Clear Subscribed Events
@@ -55,14 +79,16 @@ Configure Data Polling Interval
 
 Delete Monitored Device
     [Documentation]    This test case excercises the API, DeleteDeviceList, which deletes Redfish devices being monitored.
-    ${EXPECTED}=    RUN    sed -e '/^\\/\\//d' -e 's/ip1/${IP1}/g' -e 's/port1/${PORT1}/g' -e 's/ip2/${IP2}/g' -e 's/port2/${PORT2}/g' tests/delete_monitored_device.expected
-    ${OUTPUT}=    Run Test    tests/delete_monitored_device.tc    ${IP1}    ${PORT1}    ${IP2}    ${PORT2}
+    ${TESTNAME}=    SEt Variable If    ${multiple_olt}    tests/delete_monitored_device    tests/delete_single_monitored_device
+    ${EXPECTED}=    RUN    sed -e '/^\\/\\//d' -e 's/ip1/${IP1}/g' -e 's/port1/${PORT1}/g' -e 's/ip2/${IP2}/g' -e 's/port2/${PORT2}/g' ${TESTNAME}.expected
+    ${OUTPUT}=    Run Test    ${TESTNAME}.tc    ${IP1}    ${PORT1}    ${IP2}    ${PORT2}
     Should Be Equal    ${EXPECTED}    ${OUTPUT}
 
 List Devices monitored
     [Documentation]    This test case excercises the API, GetCurrentDevices, which lists all Redfish devices being monitored.
-    ${EXPECTED}=    RUN    sed -e '/^\\/\\//d' -e 's/ip1/${IP1}/g' -e 's/port1/${PORT1}/g' -e 's/ip2/${IP2}/g' -e 's/port2/${PORT2}/g' tests/list_device_monitored.expected
-    ${OUTPUT}=    Run Test    tests/list_device_monitored.tc    ${IP1}    ${PORT1}    ${IP2}    ${PORT2}
+    ${TESTNAME}=    SEt Variable If    ${multiple_olt}    tests/list_device_monitored    tests/list_single_device_monitored
+    ${EXPECTED}=    RUN    sed -e '/^\\/\\//d' -e 's/ip1/${IP1}/g' -e 's/port1/${PORT1}/g' -e 's/ip2/${IP2}/g' -e 's/port2/${PORT2}/g' ${TESTNAME}.expected
+    ${OUTPUT}=    Run Test    ${TESTNAME}.tc    ${IP1}    ${PORT1}    ${IP2}    ${PORT2}
     Should Be Equal    ${EXPECTED}    ${OUTPUT}
 
 List Subscribed Events
@@ -110,25 +136,44 @@ Teardown Suite
     Run Keyword If    ${use_mock_redfish}    Clean Up Mock Redfish Server
 
 Install Mock Redfish Server
+    [Documentation]    Installs mock OLTS, redfish importer, demo-test
     Apply Kubernetes Resources    ../../kubernetes/deploy-redfish-importer.yaml    default
-    Wait Until Keyword Succeeds    ${timeout}    5s
+    Wait Until Keyword Succeeds    ${pod_timeout}    5s
+    ...    Validate Pod Status    ${MOCK1_POD_NAME}    default     Running
+    Wait Until Keyword Succeeds    ${pod_timeout}    5s
+    ...    Validate Pod Status    ${MOCK2_POD_NAME}    default     Running
+    Wait Until Keyword Succeeds    ${pod_timeout}    5s
     ...    Validate Pod Status    ${IMPORTER_POD_NAME}    default     Running
-    Wait Until Keyword Succeeds    ${timeout}    5s
+    Wait Until Keyword Succeeds    ${pod_timeout}    5s
     ...    Validate Pod Status    ${DEMOTEST_POD_NAME}    default     Running
+    # After the pods have come online, it may still take a few seconds
+    # before they start responding to requests.
+    Sleep    10 Seconds
 
 Clean Up Mock Redfish Server
     Delete Kubernetes Resources    ../../kubernetes/deploy-redfish-importer.yaml    default
 
 Get IP AND PORT
+    ${num_addr}=    Get Length    ${ADDR_LIST}
+    ${multiple_olt}=    Set Variable If    ${num_addr}>1    True     False
+    Set Suite Variable    ${multiple_olt}
     Sort List    ${ADDR_LIST}
     ${I1}=    Fetch From LEFT    ${ADDR_LIST}[0]    :
     Set Suite Variable    ${IP1}    ${I1}
     ${P1}=    Fetch From Right    ${ADDR_LIST}[0]    :
     Set Suite Variable    ${PORT1}    ${P1}
+    Run Keyword If    ${multiple_olt}    Get IP AND PORT Second OLT
+    ...    ELSE    Set No Second OLT
+
+Get IP AND PORT Second OLT
     ${I2}=    Fetch From LEFT    ${ADDR_LIST}[1]    :
     Set Suite Variable    ${IP2}    ${I2}
     ${P2}=    Fetch From Right    ${ADDR_LIST}[1]    :
     Set Suite Variable    ${PORT2}    ${P2}
+
+Set No Second OLT
+    Set Suite Variable    ${IP2}    None
+    Set Suite Variable    ${PORT2}    None
 
 Run Test
     [Arguments]    @{args}

@@ -15,6 +15,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# This yaml file overrides importer.robot to configure the robot test
+# to work with two mock redfish OLTs.
+
 use_mock_redfish:    True
 use_containerized_dm:    True
 

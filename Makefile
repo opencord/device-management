@@ -36,6 +36,7 @@ DOCKER_LABEL_COMMIT_DATE ?= $(shell git diff-index --quiet HEAD -- && git show -
 DOCKER_LABEL_BUILD_DATE  ?= $(shell date -u "+%Y-%m-%dT%H:%M:%SZ")
 
 ROBOT_MOCK_OLT_FILE             ?= $(ROOT_DIR)/demo_test/functional_test/robot-mock-olt.yaml
+ROBOT_MOCK_OLT_SINGLE_FILE      ?= $(ROOT_DIR)/demo_test/functional_test/robot-mock-olt-single.yaml
 ROBOT_DEBUG_LOG_OPT             ?=
 ROBOT_MISC_ARGS                 ?=
 
@@ -58,11 +59,17 @@ help:
 
 all: test
 
-# target to invoke mock-olt robot tests
+# target to invoke mock-olt robot tests, two OLTs
 functional-mock-test: ROBOT_MISC_ARGS += $(ROBOT_DEBUG_LOG_OPT)
 functional-mock-test: ROBOT_CONFIG_FILE := $(ROBOT_MOCK_OLT_FILE)
 functional-mock-test: ROBOT_FILE := $(ROOT_DIR)/demo_test/functional_test/importer.robot
 functional-mock-test: importer-functional-test
+
+# target to invoke mock-olt robot tests, single OLT
+functional-mock-test-single: ROBOT_MISC_ARGS += $(ROBOT_DEBUG_LOG_OPT)
+functional-mock-test-single: ROBOT_CONFIG_FILE := $(ROBOT_MOCK_OLT_FILE)
+functional-mock-test-single: ROBOT_FILE := $(ROOT_DIR)/demo_test/functional_test/importer.robot
+functional-mock-test-single: importer-functional-test
 
 proto/importer.pb.go: proto/importer.proto
 	mkdir -p proto

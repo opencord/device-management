@@ -40,8 +40,8 @@ prereq:
 	go get github.com/sirupsen/logrus
 	go get github.com/Shopify/sarama
 
-demotest: prereq proto/importer.pb.go
-	go build -i -v -o $@
+demotest: proto/importer.pb.go
+	GO111MODULE=on go build -mod=vendor -i -v -o $@
 
 proto/importer.pb.go: ../proto/importer.proto
 	mkdir -p proto
