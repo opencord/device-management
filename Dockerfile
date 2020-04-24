@@ -1,4 +1,5 @@
-# copyright 2018-present Open Networking Foundation
+# Copyright 2018-present Open Networking Foundation
+# Copyright 2018-present Edgecore Networks Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,7 +30,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y --allow-downgra
 RUN go get -u "google.golang.org/grpc" \
     && go get "github.com/golang/protobuf/proto" \
     && go get -v "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway" \
-    && go get -v "github.com/golang/protobuf/protoc-gen-go"
+    && go get -v "github.com/golang/protobuf/protoc-gen-go@v1.3.2"
 RUN mkdir /app
 COPY . /app/
 WORKDIR /app
