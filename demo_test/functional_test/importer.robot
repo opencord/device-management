@@ -36,9 +36,13 @@ ${timeout}        60s
 # network fluctuation.
 ${pod_timeout}    300s
 
-# use_mock_redfish: If true, mock redfish OLTs will be used instead of a 
+# use_mock_redfish: If true, mock redfish OLTs will be used instead of a
 #    physical device. Default: False.
 ${use_mock_redfish}    False
+
+# use_kubernetes_importer: If true, then the importer and demo_test will
+#    be installed using Kubernetes. Default: False
+${use_kubernetes_install}    False
 
 # use_Containerized_dm: If true, then dm will be run from inside the
 #     demo-test container. Default: False.
@@ -128,29 +132,38 @@ Setup Suite
     Run Keyword If     ${voltha_suite_setup}    Common Test Suite Setup
     # Ensure the redfish import and demotest containers are deployed and running.
     Run Keyword If     ${use_mock_redfish}    Install Mock Redfish Server
+    Run Keyword If     ${use_kubernetes_install}    Install Importer Using Kubernetes
     Get IP AND PORT
 
 Teardown Suite
     [Documentation]    Clean up devices if desired
     ...    kills processes and cleans up interfaces on src+dst servers
+    Run Keyword If    ${use_kubernetes_install}    Clean Up Importer Using Kubernetes
     Run Keyword If    ${use_mock_redfish}    Clean Up Mock Redfish Server
 
 Install Mock Redfish Server
-    [Documentation]    Installs mock OLTS, redfish importer, demo-test
-    Apply Kubernetes Resources    ../../kubernetes/deploy-redfish-importer.yaml    default
+    [Documentation]    Installs Redfish Importer and Demotest
+    Apply Kubernetes Resources    ../../kubernetes/deploy-mock-olts.yaml    default
     Wait Until Keyword Succeeds    ${pod_timeout}    5s
     ...    Validate Pod Status    ${MOCK1_POD_NAME}    default     Running
     Wait Until Keyword Succeeds    ${pod_timeout}    5s
     ...    Validate Pod Status    ${MOCK2_POD_NAME}    default     Running
-    Wait Until Keyword Succeeds    ${pod_timeout}    5s
-    ...    Validate Pod Status    ${IMPORTER_POD_NAME}    default     Running
-    Wait Until Keyword Succeeds    ${pod_timeout}    5s
-    ...    Validate Pod Status    ${DEMOTEST_POD_NAME}    default     Running
     # After the pods have come online, it may still take a few seconds
     # before they start responding to requests.
     Sleep    10 Seconds
 
+Install Importer Using Kubernetes
+    [Documentation]    Installs mock OLTS
+    Apply Kubernetes Resources    ../../kubernetes/deploy-redfish-importer.yaml    default
+    Wait Until Keyword Succeeds    ${pod_timeout}    5s
+    ...    Validate Pod Status    ${IMPORTER_POD_NAME}    default     Running
+    Wait Until Keyword Succeeds    ${pod_timeout}    5s
+    ...    Validate Pod Status    ${DEMOTEST_POD_NAME}    default     Running
+
 Clean Up Mock Redfish Server
+    Delete Kubernetes Resources    ../../kubernetes/deploy-mock-olts.yaml    default
+
+Clean Up Importer Using Kubernetes
     Delete Kubernetes Resources    ../../kubernetes/deploy-redfish-importer.yaml    default
 
 Get IP AND PORT

@@ -37,8 +37,10 @@ DOCKER_LABEL_BUILD_DATE  ?= $(shell date -u "+%Y-%m-%dT%H:%M:%SZ")
 
 ROBOT_MOCK_OLT_FILE             ?= $(ROOT_DIR)/demo_test/functional_test/robot-mock-olt.yaml
 ROBOT_MOCK_OLT_SINGLE_FILE      ?= $(ROOT_DIR)/demo_test/functional_test/robot-mock-olt-single.yaml
+ROBOT_PHYSICAL_OLT_SINGLE_FILE  ?= $(ROOT_DIR)/demo_test/functional_test/robot-physical-olt-single.yaml
 ROBOT_DEBUG_LOG_OPT             ?=
 ROBOT_MISC_ARGS                 ?=
+ROBOT_EXTRA_ARGS                ?=
 
 help:
 	@echo "Usage: make [<target>]"
@@ -67,9 +69,15 @@ functional-mock-test: importer-functional-test
 
 # target to invoke mock-olt robot tests, single OLT
 functional-mock-test-single: ROBOT_MISC_ARGS += $(ROBOT_DEBUG_LOG_OPT)
-functional-mock-test-single: ROBOT_CONFIG_FILE := $(ROBOT_MOCK_OLT_FILE)
+functional-mock-test-single: ROBOT_CONFIG_FILE := $(ROBOT_MOCK_OLT_SINGLE_FILE)
 functional-mock-test-single: ROBOT_FILE := $(ROOT_DIR)/demo_test/functional_test/importer.robot
 functional-mock-test-single: importer-functional-test
+
+# target to invoke physical-olt robot tests, single OLT
+functional-physical-test-single: ROBOT_MISC_ARGS += $(ROBOT_DEBUG_LOG_OPT)
+functional-physical-test-single: ROBOT_CONFIG_FILE := $(ROBOT_PHYSICAL_OLT_SINGLE_FILE)
+functional-physical-test-single: ROBOT_FILE := $(ROOT_DIR)/demo_test/functional_test/importer.robot
+functional-physical-test-single: importer-functional-test
 
 proto/importer.pb.go: proto/importer.proto
 	mkdir -p proto
@@ -176,4 +184,4 @@ vst_venv: voltha-system-tests
 importer-functional-test: vst_venv
 	VIRTUAL_ENV_DISABLE_PROMPT=true source ./$</bin/activate ; set -u ;\
 	cd demo_test/functional_test ;\
-	robot -V $(ROBOT_CONFIG_FILE) $(ROBOT_MISC_ARGS) $(ROBOT_FILE)
+	robot -V $(ROBOT_CONFIG_FILE) $(ROBOT_MISC_ARGS) $(ROBOT_EXTRA_ARGS) $(ROBOT_FILE)

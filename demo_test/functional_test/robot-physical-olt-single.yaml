@@ -17,9 +17,6 @@
 # This yaml file overrides importer.robot to configure the robot test
 # to work with one mock redfish OLT.
 
-use_mock_redfish:    True
+
 use_kubernetes_install:    True
 use_containerized_dm:    True
-
-ADDR_LIST:
-  - mock-olt-1:8401

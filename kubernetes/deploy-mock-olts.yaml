@@ -18,83 +18,79 @@
 apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
-  name: redfish-importer
+  name: mock-olt-1
   labels:
-    app: redfish-importer
-    chart: redfish-importer
+    app: mock-olt-1
+    chart: mock-olt-1
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: redfish-importer
+      app: mock-olt-1
   template:
     metadata:
       labels:
-        app: redfish-importer
+        app: mock-olt-1
     spec:
       containers:
-        - name: redfish-importer
-          image: opencord/device-management:master
+        - name: mock-olt-1
+          image: opencord/redfish-mockup-server:master
           imagePullPolicy: Always
           ports:
-            - containerPort: 50051
-              name: importer
-          command: ["./main"]
-          args: ["--kafka", "voltha-kafka-0.voltha-kafka-headless.voltha:9092"]
+            - containerPort: 8001
+              name: mock-redfish
 
 ---
 
 apiVersion: v1
 kind: Service
 metadata:
-  name: redfish-importer
+  name: mock-olt-1
 spec:
   ports:
-    - name: redfish-importer
-      port: 31085
-      targetPort: 50051
+    - name: mock-redfish
+      port: 8401
+      targetPort: 8001
   selector:
-    app: redfish-importer
+    app: mock-olt-1
 
 ---
 
 apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
-  name: redfish-demotest
+  name: mock-olt-2
   labels:
-    app: redfish-demotest
-    chart: redfish-demotest
+    app: mock-olt-2
+    chart: mock-olt-2
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: redfish-demotest
+      app: mock-olt-2
   template:
     metadata:
       labels:
-        app: redfish-demotest
+        app: mock-olt-2
     spec:
       containers:
-        - name: redfish-demotest
-          image: opencord/redfish-importer-demotest:master
+        - name: mock-olt-2
+          image: opencord/redfish-mockup-server:master
           imagePullPolicy: Always
           ports:
-            - containerPort: 9999
-              name: demotest
-          command: ["./demotest"]
-          args: ["--kafka", "voltha-kafka-0.voltha-kafka-headless.voltha:9092", "--importer", "redfish-importer:31085"]
+            - containerPort: 8001
+              name: mock-redfish
 
 ---
 
 apiVersion: v1
 kind: Service
 metadata:
-  name: redfish-demotest
+  name: mock-olt-2
 spec:
   ports:
-    - name: redfish-demotest
-      port: 9999
-      targetPort: 9999
+    - name: mock-redfish
+      port: 8402
+      targetPort: 8001
   selector:
-    app: redfish-demotest
+    app: mock-olt-2
