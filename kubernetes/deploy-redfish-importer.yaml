@@ -40,7 +40,7 @@ spec:
             - containerPort: 50051
               name: importer
           command: ["./main"]
-          args: ["--kafka", "voltha-kafka-0.voltha-kafka-headless.voltha:9092"]
+          args: ["--kafka", "kafka:9092"]
 
 ---
 
@@ -83,7 +83,7 @@ spec:
             - containerPort: 9999
               name: demotest
           command: ["./demotest"]
-          args: ["--kafka", "voltha-kafka-0.voltha-kafka-headless.voltha:9092", "--importer", "redfish-importer:31085"]
+          args: ["--kafka", "kafka:9092", "--importer", "redfish-importer:31085"]
 
 ---
 
