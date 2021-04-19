@@ -21,7 +21,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y --allow-downgra
 	git=1:2.20.1-2+deb10u1 \
 	gcc=4:8.3.0-1 \
 	curl=7.64.0-4 \
-	unzip=6.0-23+deb10u1
+	unzip=6.0-23+deb10u2
 # Install protoc-gen-go.
 RUN go get -v github.com/golang/protobuf/protoc-gen-go@v1.3.2
 # Install protoc, same steps as in main importer dockerfile
@@ -55,4 +55,3 @@ WORKDIR /app/demo_test
 COPY --from=build-env /app/demo_test/demotest .
 COPY --from=build-env /app/demo_test/functional_test/dm .
 ENTRYPOINT ["./demotest"]
-

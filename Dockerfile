@@ -26,12 +26,12 @@ RUN apt-get update && apt-get install --no-install-recommends -y --allow-downgra
 	git=1:2.20.1-2+deb10u1 \
 	gcc=4:8.3.0-1 \
 	curl=7.64.0-4 \
-	unzip=6.0-23+deb10u1
+	unzip=6.0-23+deb10u2
 RUN go get -v "github.com/golang/protobuf/protoc-gen-go@v1.3.2"
 RUN mkdir /app
 COPY . /app/
 WORKDIR /app
-RUN curl -L -o /tmp/protoc-${PROTOC_VERSION}-linux-x86_64.zip https://github.com/google/protobuf/releases/download/v${PROTOC_VERSION}/protoc-${PROTOC_VERSION}-linux-x86_64.zip 
+RUN curl -L -o /tmp/protoc-${PROTOC_VERSION}-linux-x86_64.zip https://github.com/google/protobuf/releases/download/v${PROTOC_VERSION}/protoc-${PROTOC_VERSION}-linux-x86_64.zip
 RUN mkdir /tmp/protoc3
 RUN   echo "$PROTOC_SHA256SUM  /tmp/protoc-${PROTOC_VERSION}-linux-x86_64.zip" | sha256sum -c - \
  &&  unzip /tmp/protoc-${PROTOC_VERSION}-linux-x86_64.zip -d /tmp/protoc3 \
